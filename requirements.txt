@@ -3,7 +3,7 @@ langchain-groq
 langchain-community
 streamlit
 python-dotenv
-duckduckgo-search
+duckduckgo-search>=6.0.0
 litellm
 streamlit-lottie
 requests
