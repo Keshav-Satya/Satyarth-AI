@@ -11,34 +11,29 @@ load_dotenv()
 # Humne model name ke aage 'groq/' laga diya hai, yahi asli jaadu hai
 my_llm = "groq/llama-3.1-8b-instant"
 
-# 3. Satyarth-AI Search Tool
-class SatyarthSearchTool(BaseTool):
-    name: str = "Satyarth Search Tool"
-    description: str = "Internet par viral news dhoondne ke liye tool."
-
-    def _run(self, query: str) -> str:
-        search = DuckDuckGoSearchRun()
-        return search.run(query)
-
-search_tool = SatyarthSearchTool()
+# 3. Standard Search Tool (Ismein error nahi aayega)
+search_tool = DuckDuckGoSearchRun()
 
 # 4. Scout Agent Definition
 scout_agent = Agent(
     role='Digital Information Scout',
     goal='Viral news ki sachai verify karna.',
-    backstory="Aap ek digital detective hain jo internet se fact-check karte hain.",
-    tools=[search_tool], 
-    llm=my_llm, # String format pass kiya
+    backstory="""Aap ek digital detective hain jo internet se fact-check karte hain. 
+    Aapko sirf aur sirf 'duckduckgo_search' tool ka use karna hai. 
+    Kisi bhi haal mein koi aur tool (jaise brave_search) call nahi karna hai.""",
+    tools=[search_tool],
+    llm=my_llm,
     verbose=True,
     allow_delegation=False
 )
 
 # 5. Analyst Agent Definition
 analyst_agent = Agent(
-    role='Deepfake Analysis Expert',
-    goal='Viral media ke technical aur logical gaps dhoondna.',
-    backstory="Aap ek expert forensic analyst hain.",
-    llm=my_llm, # String format pass kiya
+    role='News Verifier Analyst',
+    goal='Scout Agent ki report ko analyze karke final verdict dena.',
+    backstory="""Aap ek senior journalist hain jo sources ki quality check karte hain. 
+    Aapka kaam Scout Agent se report lena aur uska nichod nikalna hai.""",
+    llm=my_llm,
     verbose=True,
     allow_delegation=True
 )
@@ -66,3 +61,4 @@ if __name__ == "__main__":
     print("########################\n")
 
     print(result)
+
