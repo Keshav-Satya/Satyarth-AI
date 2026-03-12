@@ -9,7 +9,7 @@ load_dotenv()
 
 # 2. CrewAI ko batana ki hum GROQ use kar rahe hain
 # Humne model name ke aage 'groq/' laga diya hai, yahi asli jaadu hai
-my_llm = "groq/llama-3.3-70b-versatile"
+my_llm = "groq/llama-3.1-8b-instant"
 
 # 3. Satyarth-AI Search Tool
 class SatyarthSearchTool(BaseTool):
@@ -64,4 +64,5 @@ if __name__ == "__main__":
     print("\n########################")
     print("## FINAL REPORT ##")
     print("########################\n")
+
     print(result)
