@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
 from crewai.tools import BaseTool
-from langchain_community.tools import DuckDuckGoSearchRun
+from crewai_tools import DuckDuckGoSearchTool
 
 # 1. Keys load karna
 load_dotenv()
@@ -12,7 +12,7 @@ load_dotenv()
 my_llm = "groq/llama-3.1-8b-instant"
 
 # 3. Standard Search Tool (Ismein error nahi aayega)
-search_tool = DuckDuckGoSearchRun()
+search_tool = DuckDuckGoSearchTool()
 
 # 4. Scout Agent Definition
 scout_agent = Agent(
@@ -61,4 +61,5 @@ if __name__ == "__main__":
     print("########################\n")
 
     print(result)
+
 
