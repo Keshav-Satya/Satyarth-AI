@@ -1,9 +1,9 @@
 crewai
-crewai-tools
 langchain-groq
+langchain-community
 streamlit
 python-dotenv
 duckduckgo-search
-litellm
 streamlit-lottie
 requests
+litellm
