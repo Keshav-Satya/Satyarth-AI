@@ -1,85 +1,116 @@
 import streamlit as st
 from main import satyarth_crew
 import time
+import requests
+from streamlit_lottie import st_lottie
 
-# 1. Page Configuration (Website ka tab aur layout)
-st.set_page_config(
-    page_title="Satyarth-AI | Deepfake Detective",
-    page_icon="🕵️‍♂️",
-    layout="wide"
-)
+# 1. Page Config
+st.set_page_config(page_title="Satyarth-AI | Pro Detective", page_icon="🛡️", layout="wide")
 
-# 2. Custom CSS for Styling (Website ko 'Pyara' banane ka jaadu)
+# Function for Lottie Animations
+def load_lottieurl(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+lottie_detective = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_at6m9vyl.json") # AI Search Animation
+
+# 2. Advanced CSS (Cyber-Security Theme)
 st.markdown("""
     <style>
-    .main {
-        background-color: #f0f2f6;
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    
+    .stApp {
+        background: linear-gradient(to right, #0f2027, #203a43, #2dbd6e20);
     }
-    .stButton>button {
-        width: 100%;
-        border-radius: 20px;
-        height: 3em;
-        background-color: #ff4b4b;
-        color: white;
-        font-weight: bold;
-        border: none;
-    }
-    .stTextInput>div>div>input {
-        border-radius: 15px;
+    h1, h2, h3 {
+        color: #00ffcc !important;
+        font-family: 'Orbitron', sans-serif;
     }
     .report-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-        border-left: 5px solid #ff4b4b;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: white;
+        padding: 25px;
+        border-radius: 20px;
+        border: 1px solid #00ffcc;
+        backdrop-filter: blur(10px);
+    }
+    .stButton>button {
+        background: linear-gradient(45deg, #00ffcc, #0088ff);
+        color: black !important;
+        border: none;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 0px 15px #00ffcc;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar (Information aur Settings ke liye)
+# 3. Sidebar (Branding Section)
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2562/2562392.png", width=100) # Ek cool detective icon
-    st.title("Satyarth Control Room")
-    st.info("Sir, Satyarth-AI ek advanced multi-agent system hai jo news ki sachai dhoondne mein expert hai.")
-    st.markdown("---")
-    st.write("🔧 **System Settings**")
-    model_speed = st.select_slider("Analysis Depth", options=["Quick", "Standard", "Deep"])
-    st.write("Developed with ❤️ by **Team Future Flux (NIT Hamirpur)**")
-
-# 4. Main Body UI
-col1, col2 = st.columns([1, 2]) # Screen ko do parts mein baanta
-
-with col1:
-    # Yahan hum koi animation ya image dikha sakte hain
-    st.title("🕵️‍♂️")
-    st.header("Satyarth-AI")
-    st.subheader("Deepfake & News Verifier")
-
-with col2:
+    st.title("🛡️ Satyarth Hub")
     st.write("---")
-    st.markdown("### Sir, aaj humein kis news ka 'Parda-Faash' karna hai?")
-    news_topic = st.text_input("", placeholder="Yahan news ka topic ya link likhein...")
+    st_lottie(lottie_detective, height=150, key="detective")
+    st.success("System: Online ✅")
+    st.info("Developing a safer internet, one news at a time.")
     
-    submit_button = st.button("Satyarth Investigation Shuru Karein")
+    st.markdown("### 👨‍💻 Developer")
+    st.write("**Keshav (NIT Hamirpur)**")
+    st.write("Electrical Engineering Student")
+    
+    # Social Buttons
+    st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Profile-lightgrey?style=for-the-badge&logo=github)](https://github.com/Keshav-Satya)")
+    st.markdown("---")
+    st.write("Special thanks to **Ojas Club** & **E-Cell**")
 
-# 5. Result Section
-if submit_button:
-    if news_topic:
-        with st.status("🔍 Investigation Shuru...", expanded=True) as status:
-            st.write("1. Scout Agent dimaag laga raha hai...")
-            time.sleep(1)
-            st.write("2. Internet se sources dhoonde ja rahe hain...")
-            
-            # Crew Execution
-            result = satyarth_crew.kickoff(inputs={'news_topic': news_topic})
-            
-            status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
+# 4. Main UI with Tabs
+st.title("🕵️‍♂️ SATYARTH-AI : V2.0")
+tab1, tab2, tab3 = st.tabs(["🔍 Investigation Desk", "📖 How it Works", "🎓 About"])
 
-        st.markdown("### 📜 Final Forensic Report")
-        st.markdown(f'<div class="report-card">{result}</div>', unsafe_allow_html=True)
-        
-        # Ek pyara sa celebration effect
-        st.balloons()
-    else:
-        st.warning("Sir, bina news ke detective kya dhoondega? Please kuch topic likhiye.")
+with tab1:
+    st.markdown("### Sir, enter the news or link to verify:")
+    news_input = st.text_input("", placeholder="e.g., Viral video of Prime Minister...")
+    
+    if st.button("RUN FORENSIC ANALYSIS"):
+        if news_input:
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            # Simulated Processing Stages
+            stages = ["Connecting to Global Servers...", "Activating Scout Agent...", "Fetching Meta-Data...", "Finalizing Cross-Verification..."]
+            for i, stage in enumerate(stages):
+                status_text.text(f"Processing: {stage}")
+                progress_bar.progress((i + 1) * 25)
+                time.sleep(1)
+
+            # Actual AI Execution
+            with st.spinner("Satyarth is generating the final report..."):
+                result = satyarth_crew.kickoff(inputs={'news_topic': news_input})
+                
+            st.balloons()
+            st.markdown("### 📜 Forensic Analysis Report")
+            st.markdown(f'<div class="report-card">{result}</div>', unsafe_allow_html=True)
+            
+            # Option to save report
+            st.download_button("Download Report as TXT", str(result), file_name="Satyarth_Report.txt")
+        else:
+            st.error("Sir, please provide a topic first!")
+
+with tab2:
+    st.write("### Satyarth-AI kaise kaam karta hai?")
+    st.video("https://www.youtube.com/watch?v=dQw4w9WgXcQ") # Yahan aap apna demo video link dal sakte hain
+    st.markdown("""
+    - **Step 1:** Aap news daalte hain.
+    - **Step 2:** Scout Agent poore internet ko scan karta hai.
+    - **Step 3:** Analyst Agent sources ki credibility check karta hai.
+    - **Step 4:** Aapko ek unbiased report milti hai.
+    """)
+
+with tab3:
+    st.write("### About the Project")
+    st.write("Yeh project deepfakes aur fake news ki badhti samasya ko tackle karne ke liye NIT Hamirpur mein banaya gaya hai.")
+    st.image("https://www.nith.ac.in/assets/images/nith-logo.png", width=100)
