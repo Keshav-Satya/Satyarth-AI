@@ -67,7 +67,7 @@ with st.sidebar:
     # Social Buttons
     st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Profile-lightgrey?style=for-the-badge&logo=github)](https://github.com/Keshav-Satya)")
     st.markdown("---")
-    st.write("Special thanks to **Ojas Club** & **E-Cell**")
+    st.write("Created with love by team Future Flux")
 
 # 4. Main UI with Tabs
 st.title("🕵️‍♂️ SATYARTH-AI : V2.0")
@@ -116,4 +116,5 @@ with tab3:
     st.write("### About the Project")
     st.write("Yeh project deepfakes aur fake news ki badhti samasya ko tackle karne ke liye NIT Hamirpur mein banaya gaya hai.")
     st.image("https://www.nith.ac.in/assets/images/nith-logo.png", width=100)
+
 
