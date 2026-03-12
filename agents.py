@@ -1,33 +1,34 @@
 import os
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
-from crewai.tools import BaseTool
-from crewai_tools import DuckDuckGoSearchTool
+from crewai.tools import tool  # <--- Yeh zaroori import hai
+from langchain_community.tools import DuckDuckGoSearchRun
 
 # 1. Keys load karna
 load_dotenv()
 
-# 2. CrewAI ko batana ki hum GROQ use kar rahe hain
-# Humne model name ke aage 'groq/' laga diya hai, yahi asli jaadu hai
 my_llm = "groq/llama-3.1-8b-instant"
 
-# 3. Standard Search Tool (Ismein error nahi aayega)
-search_tool = DuckDuckGoSearchTool()
+# 2. SURAKSHA KAVACH (Wrapper Tool)
+# Isse Pydantic ka 'ValidationError' kabhi nahi aayega
+@tool('search_tool')
+def search_tool(query: str):
+    """Search the internet for news and information."""
+    return DuckDuckGoSearchRun().run(query)
 
-# 4. Scout Agent Definition
+# 3. Scout Agent Definition
 scout_agent = Agent(
     role='Digital Information Scout',
     goal='Viral news ki sachai verify karna.',
     backstory="""Aap ek digital detective hain jo internet se fact-check karte hain. 
-    Aapko sirf aur sirf 'duckduckgo_search' tool ka use karna hai. 
-    Kisi bhi haal mein koi aur tool (jaise brave_search) call nahi karna hai.""",
+    Aapko sirf 'search_tool' ka use karna hai.""",
     tools=[search_tool],
     llm=my_llm,
     verbose=True,
     allow_delegation=False
 )
 
-# 5. Analyst Agent Definition
+# 4. Analyst Agent Definition
 analyst_agent = Agent(
     role='News Verifier Analyst',
     goal='Scout Agent ki report ko analyze karke final verdict dena.',
@@ -37,29 +38,3 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
-
-if __name__ == "__main__":
-    # Mission (Task)
-    task = Task(
-        description='Verify karein ki kya "Donald Trump dancing in Indian wedding" news real hai?',
-        expected_output='Ek detail report jo bataye ki news asli hai ya fake.',
-        agent=scout_agent
-    )
-
-    # Team (Crew)
-    satyarth_crew = Crew(
-        agents=[scout_agent, analyst_agent],
-        tasks=[task],
-        process=Process.sequential,
-        verbose=True
-    )
-
-    print("\n--- Satyarth-AI Investigation Shuru ---")
-    result = satyarth_crew.kickoff()
-    print("\n########################")
-    print("## FINAL REPORT ##")
-    print("########################\n")
-
-    print(result)
-
-
