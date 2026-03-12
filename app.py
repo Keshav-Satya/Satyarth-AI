@@ -50,17 +50,19 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar (Branding Section)
+# Sidebar (Branding Section)
 with st.sidebar:
     st.title("🛡️ Satyarth Hub")
     st.write("---")
-    st_lottie(lottie_detective, height=150, key="detective")
+    
+    # Safety Check: Sir, agar animation load hua tabhi dikhao, varna icon dikhao
+    if lottie_detective:
+        st_lottie(lottie_detective, height=150, key="detective")
+    else:
+        st.write("🕵️‍♂️") # Fallback Icon agar animation fail ho jaye
+        
     st.success("System: Online ✅")
     st.info("Developing a safer internet, one news at a time.")
-    
-    st.markdown("### 👨‍💻 Developer")
-    st.write("**Keshav (NIT Hamirpur)**")
-    st.write("Electrical Engineering Student")
     
     # Social Buttons
     st.markdown("[![GitHub](https://img.shields.io/badge/GitHub-Profile-lightgrey?style=for-the-badge&logo=github)](https://github.com/Keshav-Satya)")
@@ -114,3 +116,4 @@ with tab3:
     st.write("### About the Project")
     st.write("Yeh project deepfakes aur fake news ki badhti samasya ko tackle karne ke liye NIT Hamirpur mein banaya gaya hai.")
     st.image("https://www.nith.ac.in/assets/images/nith-logo.png", width=100)
+
