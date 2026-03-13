@@ -1,4 +1,5 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
 from crewai.tools import tool
@@ -8,10 +9,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI # Naya Gemini Import
 # 1. Keys load karna
 load_dotenv()
 
-# 2. Gemini Model Initialize karna (Unlimited Power! ⚡)
+# Yeh tarika kabhi fail nahi hota
 my_llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
-    google_api_key=os.getenv("GOOGLE_API_KEY")
+    api_key=st.secrets["GOOGLE_API_KEY"] # Seedha secrets se uthao
 )
 
 # 3. SEARCH TOOL (Stable Wrapper)
@@ -44,3 +45,4 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
