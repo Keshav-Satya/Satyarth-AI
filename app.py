@@ -1,5 +1,7 @@
 import streamlit as st
-from main import satyarth_crew
+import os
+from main import scout_agent, analyst_agent, scout_task, analyst_task, my_llm
+from crewai import Crew, Process
 import time
 
 # 1. Page Configuration (Website ka tab aur layout)
@@ -71,8 +73,18 @@ if submit_button:
             time.sleep(1)
             st.write("2. Internet se sources dhoonde ja rahe hain...")
             
-            # Crew Execution
-            result = satyarth_crew.kickoff(inputs={'news_topic': news_topic})
+           # Force Gemini at the last moment
+        os.environ["OPENAI_API_KEY"] = "NA"
+        
+        satyarth_crew = Crew(
+            agents=[scout_agent, analyst_agent],
+            tasks=[scout_task, analyst_task],
+            process=Process.sequential,
+            manager_llm=my_llm,  # <--- Gemini Boss
+            verbose=True
+        )
+        
+        result = satyarth_crew.kickoff(inputs={'news_topic': news_topic})
             
             status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
 
@@ -83,3 +95,4 @@ if submit_button:
         st.balloons()
     else:
         st.warning("Sir, bina news ke detective kya dhoondega? Please kuch topic likhiye.")
+
