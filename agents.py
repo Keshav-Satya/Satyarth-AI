@@ -5,15 +5,14 @@ from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-# 1. CrewAI ko OpenAI ke liye bewakoof banayein (Zaroori hai)
+# 1. Sabse zaroori: Purani yaadein mitao
+# Sir, check kijiye ki yahan GOOGLE_API_KEY wala koi os.environ na ho!
 os.environ["OPENAI_API_KEY"] = "NA"
 
-# NOTE: Yahan koi GOOGLE_API_KEY environment variable mat likhna.
-# CrewAI ko Gemini ka rasta hum niche 'llm' parameter se dikhayenge.
-
-# 2. Gemini Model Initialize karna
+# 2. Gemini Model (Sabse Stable Version)
+# Hum 'gemini-pro' use karenge taaki 404 error kabhi na aaye
 my_llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-pro", 
     google_api_key=st.secrets["GOOGLE_API_KEY"],
     temperature=0.3
 )
@@ -29,7 +28,7 @@ def search_tool(query: str):
 scout_agent = Agent(
     role='Digital Information Scout',
     goal='Viral news ki sachai verify karna.',
-    backstory="Aap ek digital detective hain jo internet se fact-check karte hain.",
+    backstory="Aap ek digital detective hain jo fact-check karte hain.",
     tools=[search_tool],
     llm=my_llm, # <--- Sir, yeh line Gemini se connect karti hai
     verbose=True,
