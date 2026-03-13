@@ -9,6 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI # Naya Gemini Import
 # 1. Keys load karna
 load_dotenv()
 
+os.environ["OPENAI_API_KEY"] = "NA"
 # Yeh configuration sabse zyada stable hai aur 404 error ko khatam kar degi
 my_llm = ChatGoogleGenerativeAI(
     model="gemini-pro", # <--- Ise 'gemini-pro' kar dein, yeh sabse reliable hai
@@ -46,6 +47,7 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
 
 
 
