@@ -11,7 +11,7 @@ os.environ["OPENAI_API_KEY"] = "NA"
 
 # Yeh configuration sabse zyada stable hai aur 404 error ko khatam kar degi
 my_llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash", 
+    model="gemini-pro", 
     google_api_key=st.secrets["GOOGLE_API_KEY"], # <--- 'api_key' ko 'google_api_key' kar dein
     temperature=0.3
 )
@@ -43,4 +43,5 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
 
