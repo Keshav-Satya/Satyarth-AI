@@ -9,10 +9,11 @@ from langchain_google_genai import ChatGoogleGenerativeAI # Naya Gemini Import
 # 1. Keys load karna
 load_dotenv()
 
-# Yeh tarika kabhi fail nahi hota
+# Yeh wala configuration ek dum stable hai
 my_llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
-    api_key=st.secrets["GOOGLE_API_KEY"] # Seedha secrets se uthao
+    model="gemini-1.5-flash",  # <--- Flash model hi rakhein
+    google_api_key=st.secrets["GOOGLE_API_KEY"], # <--- 'api_key' ko 'google_api_key' kar dein
+    temperature=0.3
 )
 
 # 3. SEARCH TOOL (Stable Wrapper)
@@ -45,4 +46,5 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
 
