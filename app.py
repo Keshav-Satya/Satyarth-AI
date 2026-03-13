@@ -1,98 +1,79 @@
 import streamlit as st
 import os
-from main import scout_agent, analyst_agent, scout_task, analyst_task, my_llm
-from crewai import Crew, Process
 import time
+from crewai import Agent, Task, Crew, Process
+from crewai.tools import tool
+from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-# 1. Page Configuration (Website ka tab aur layout)
-st.set_page_config(
-    page_title="Satyarth-AI | Deepfake Detective",
-    page_icon="🕵️‍♂️",
-    layout="wide"
+# 1. Page Configuration
+st.set_page_config(page_title="Satyarth-AI | Detective", page_icon="🕵️", layout="wide")
+
+# 2. Force environment variables (SABSE ZAROORI)
+os.environ["OPENAI_API_KEY"] = "NA" 
+os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+
+# 3. Gemini Model Define karna
+my_llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    google_api_key=st.secrets["GOOGLE_API_KEY"],
+    temperature=0.3
 )
 
-# 2. Custom CSS for Styling (Website ko 'Pyara' banane ka jaadu)
-st.markdown("""
-    <style>
-    .main {
-        background-color: #f0f2f6;
-    }
-    .stButton>button {
-        width: 100%;
-        border-radius: 20px;
-        height: 3em;
-        background-color: #ff4b4b;
-        color: white;
-        font-weight: bold;
-        border: none;
-    }
-    .stTextInput>div>div>input {
-        border-radius: 15px;
-    }
-    .report-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-        border-left: 5px solid #ff4b4b;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# 4. Search Tool
+@tool('search_tool')
+def search_tool(query: str):
+    """Search the internet for news and information."""
+    raw_results = DuckDuckGoSearchRun().run(query)
+    return raw_results[:2000]
 
-# 3. Sidebar (Information aur Settings ke liye)
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2562/2562392.png", width=100) # Ek cool detective icon
-    st.title("Satyarth Control Room")
-    st.info("Sir, Satyarth-AI ek advanced multi-agent system hai jo news ki sachai dhoondne mein expert hai.")
-    st.markdown("---")
-    st.write("🔧 **System Settings**")
-    model_speed = st.select_slider("Analysis Depth", options=["Quick", "Standard", "Deep"])
-    st.write("Developed with ❤️ by Team **Future Flux (NIT Hamirpur)**")
+# --- UI Layout ---
+st.title("🕵️ Satyarth-AI")
+st.subheader("Deepfake & News Verifier")
 
-# 4. Main Body UI
-col1, col2 = st.columns([1, 2]) # Screen ko do parts mein baanta
-
-with col1:
-    # Yahan hum koi animation ya image dikha sakte hain
-    st.title("🕵️‍♂️")
-    st.header("Satyarth-AI")
-    st.subheader("Deepfake & News Verifier")
-
-with col2:
-    st.write("---")
-    st.markdown("### Sir, aaj humein kis news ka 'Parda-Faash' karna hai?")
-    news_topic = st.text_input("", placeholder="Yahan news ka topic ya link likhein...")
-    
-    submit_button = st.button("Satyarth Investigation Shuru Karein")
+news_topic = st.text_input("Sir, aaj humein kis news ka 'Parda-Faash' karna hai?", placeholder="Yahan news topic likhein...")
+submit_button = st.button("Satyarth Investigation Shuru Karein")
 
 if submit_button:
-        if news_topic:
-            with st.status("🔍 Investigation Shuru...", expanded=True) as status:
-                st.write("1. Scout Agent dimaag laga raha hai...")
-                time.sleep(1)
-                st.write("2. Internet se sources dhoonde ja rahe hain...")
-                
-                # Force Gemini at the last moment
-                os.environ["OPENAI_API_KEY"] = "NA"
-                
-                satyarth_crew = Crew(
-                    agents=[scout_agent, analyst_agent],
-                    tasks=[scout_task, analyst_task],
-                    process=Process.sequential,
-                    manager_llm=my_llm,
-                    verbose=True
-                )
-                
-                result = satyarth_crew.kickoff(inputs={'news_topic': news_topic})
-                
-                # Sir, dhyan dijiye niche wali line 'result' ke theek niche honi chahiye
-                status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
+    if news_topic:
+        with st.status("🔍 Investigation Shuru...", expanded=True) as status:
+            # Agents fresh define kar rahe hain taaki OpenAI call na ho
+            scout = Agent(
+                role='Digital Information Scout',
+                goal='Viral news ki sachai verify karna.',
+                backstory="Aap ek fact-checker hain.",
+                tools=[search_tool],
+                llm=my_llm,
+                verbose=True
+            )
 
-            # Result Section
-            st.markdown("### 📜 Final Forensic Report")
-            st.markdown(f'<div class="report-card">{result}</div>', unsafe_allow_html=True)
-            
-            # Celebration effect
-            st.balloons()
-        else:
-            st.warning("Sir, bina news ke detective kya dhoondega? Please kuch topic likhiye.")
+            analyst = Agent(
+                role='News Verifier Analyst',
+                goal='Final verdict dena.',
+                backstory="Aap ek senior journalist hain.",
+                llm=my_llm,
+                verbose=True
+            )
+
+            # Tasks fresh define kar rahe hain (Adding LLM here too!)
+            task1 = Task(description=f"Verify news: {news_topic}", agent=scout, expected_output="Facts list")
+            task2 = Task(description="Analyze facts and give final verdict", agent=analyst, expected_output="Final Report")
+
+            # Crew Setup
+            satyarth_crew = Crew(
+                agents=[scout, analyst],
+                tasks=[task1, task2],
+                process=Process.sequential,
+                manager_llm=my_llm, # Force Gemini as Manager
+                verbose=True
+            )
+
+            st.write("🕵️ Agents dimaag laga rahe hain...")
+            result = satyarth_crew.kickoff()
+            status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
+
+        st.markdown("### 📜 Final Forensic Report")
+        st.write(result.raw)
+        st.balloons()
+    else:
+        st.warning("Sir, please topic likhiye.")
