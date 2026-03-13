@@ -1,6 +1,5 @@
-crewai==0.63.6
-langchain-google-genai==2.0.1
-langchain-community==0.3.0
-duckduckgo-search==6.2.11
-streamlit==1.38.0
-python-dotenv==1.0.1
+crewai
+langchain-google-genai
+langchain-community
+duckduckgo-search
+streamlit
