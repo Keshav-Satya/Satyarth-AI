@@ -1,22 +1,28 @@
 import os
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
-from crewai.tools import tool  # <--- Yeh zaroori import hai
+from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_google_genai import ChatGoogleGenerativeAI # Naya Gemini Import
 
 # 1. Keys load karna
 load_dotenv()
 
-my_llm = "groq/llama-3.1-8b-instant"
+# 2. Gemini Model Initialize karna (Unlimited Power! ⚡)
+my_llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    google_api_key=os.getenv("GOOGLE_API_KEY")
+)
 
-# 2. SURAKSHA KAVACH (Wrapper Tool)
-# Isse Pydantic ka 'ValidationError' kabhi nahi aayega
+# 3. SEARCH TOOL (Stable Wrapper)
 @tool('search_tool')
 def search_tool(query: str):
     """Search the internet for news and information."""
-    return DuckDuckGoSearchRun().run(query)
+    # Search results ko thoda chota rakhte hain taaki report saaf bane
+    raw_results = DuckDuckGoSearchRun().run(query)
+    return raw_results[:2000]
 
-# 3. Scout Agent Definition
+# 4. Scout Agent Definition
 scout_agent = Agent(
     role='Digital Information Scout',
     goal='Viral news ki sachai verify karna.',
@@ -28,7 +34,7 @@ scout_agent = Agent(
     allow_delegation=False
 )
 
-# 4. Analyst Agent Definition
+# 5. Analyst Agent Definition
 analyst_agent = Agent(
     role='News Verifier Analyst',
     goal='Scout Agent ki report ko analyze karke final verdict dena.',
