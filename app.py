@@ -11,6 +11,7 @@ st.set_page_config(page_title="Satyarth-AI | Detective", page_icon="🕵️", la
 
 # 2. Force environment variables (SABSE ZAROORI)
 os.environ["OPENAI_API_KEY"] = "NA" 
+# Is line ko mita dein:
 os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # 3. Gemini Model Define karna
@@ -77,3 +78,4 @@ if submit_button:
         st.balloons()
     else:
         st.warning("Sir, please topic likhiye.")
+
