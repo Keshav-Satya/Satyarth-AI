@@ -29,24 +29,23 @@ def search_tool(query: str):
 scout_agent = Agent(
     role='Digital Information Scout',
     goal='Viral news ki sachai verify karna.',
-    backstory="""Aap ek digital detective hain jo internet se fact-check karte hain. 
-    Aapko sirf 'search_tool' ka use karna hai.""",
+    backstory="Aap ek fact-checker hain.",
     tools=[search_tool],
-    llm=my_llm,
     verbose=True,
-    allow_delegation=False
+    allow_delegation=False,
+    llm=my_llm  # <--- YEH LINE HONA BOHOT ZAROORI HAI!
 )
 
 # 5. Analyst Agent Definition
 analyst_agent = Agent(
     role='News Verifier Analyst',
-    goal='Scout Agent ki report ko analyze karke final verdict dena.',
-    backstory="""Aap ek senior journalist hain jo sources ki quality check karte hain. 
-    Aapka kaam Scout Agent se report lena aur uska nichod nikalna hai.""",
-    llm=my_llm,
+    goal='Report analyze karke final verdict dena.',
+    backstory="Aap ek senior journalist hain.",
     verbose=True,
-    allow_delegation=True
+    allow_delegation=True,
+    llm=my_llm  # <--- YEH BHI ZAROORI HAI!
 )
+
 
 
 
