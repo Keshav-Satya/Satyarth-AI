@@ -9,11 +9,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI # Naya Gemini Import
 # 1. Keys load karna
 load_dotenv()
 
-# Yeh wala configuration ek dum stable hai
-# Yeh configuration ek dum stable hai (api_key ko google_api_key kar diya hai)
+# Yeh configuration sabse zyada stable hai aur 404 error ko khatam kar degi
 my_llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash", 
-    google_api_key=st.secrets["GOOGLE_API_KEY"], # <--- Yeh 'google_api_key' hona chahiye
+    model="gemini-pro", # <--- Ise 'gemini-pro' kar dein, yeh sabse reliable hai
+    google_api_key=st.secrets["GOOGLE_API_KEY"], 
     temperature=0.3
 )
 
@@ -47,6 +46,7 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
 
 
 
