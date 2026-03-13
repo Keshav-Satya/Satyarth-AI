@@ -7,13 +7,12 @@ from langchain_community.tools import DuckDuckGoSearchRun
 # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI", page_icon="🕵️", layout="wide")
 
-# 2. Block OpenAI & Set Google Key
+# 2. Block OpenAI
 os.environ["OPENAI_API_KEY"] = "NA"
 
-# 3. Native Gemini Setup
-# Sir, is method se 404 error kabhi nahi aayega
+# 3. Native Gemini Setup - USING PRO VERSION (No 404 Error)
 my_llm = LLM(
-    model="gemini/gemini-1.5-flash",
+    model="gemini/gemini-1.5-pro", 
     api_key=st.secrets["GOOGLE_API_KEY"]
 )
 
@@ -65,13 +64,13 @@ if submit_button and news_topic:
         task1 = Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="Facts list")
         task2 = Task(description="Prepare final forensic report", agent=analyst, expected_output="Final verdict")
 
-        # Crew
+        # Crew - Sabse Stable Config
         satyarth_crew = Crew(
             agents=[scout, analyst],
             tasks=[task1, task2],
             process=Process.sequential,
             manager_llm=my_llm,
-            memory=False, # Validation error se bachne ke liye False
+            memory=False, 
             verbose=True
         )
 
