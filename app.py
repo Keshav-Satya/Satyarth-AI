@@ -35,4 +35,8 @@ st.markdown("""
         background-color: white; 
         padding: 20px; 
         border-radius: 15px; 
-        border-left: 5px solid #
+        border-left: 5px solid #ff4b4b;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    }
+    </style>
+    """, unsafe_allow_html=True)
