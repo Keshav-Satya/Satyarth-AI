@@ -5,14 +5,14 @@ from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-# 1. Environment variables set karna (CrewAI ke liye)
-os.environ["OPENAI_API_KEY"] = "NA"
-os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+# 1. Purani aadat chudane ke liye (Cleanup)
+# Hum saare environment variables ko clear karke sirf Gemini par focus karenge
+os.environ["OPENAI_API_KEY"] = "NA" 
 
-# 2. Gemini Model (Ek dum stable configuration)
-# Note: Hum 'gemini-1.5-flash' use karenge jo sabse fast hai
+# 2. Gemini Model (Forcing the Stable v1 Version)
+# Sir, hum 'gemini-1.5-flash' use karenge lekin model string ko thoda badlenge
 my_llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash", 
+    model="gemini-1.5-flash", # <--- Ise 'gemini-1.5-flash' hi rehne dein
     google_api_key=st.secrets["GOOGLE_API_KEY"],
     temperature=0.3
 )
@@ -44,4 +44,5 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
 
