@@ -1,86 +1,120 @@
 import streamlit as st
 import os
-from crewai import Agent, Task, Crew, Process, LLM # <--- LLM import zaroori hai
+import time
+from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
 
-# 1. Page Configuration
-st.set_page_config(page_title="Satyarth-AI", page_icon="🕵️", layout="wide")
+# 1. Page Configuration (Website ka look aur icon)
+st.set_page_config(page_title="Satyarth-AI | Detective", page_icon="🕵️", layout="wide")
 
-# 2. Force environment cleanup
+# 2. Safety First: OpenAI ko block karna aur Google Key set karna
 os.environ["OPENAI_API_KEY"] = "NA" 
 
-# 3. Native CrewAI Gemini Setup (Sabse Stable)
-# Sir, 'gemini/' prefix lagana zaroori hai taaki 404 error na aaye
+# Check if Key exists
+if "GOOGLE_API_KEY" not in st.secrets:
+    st.error("Sir, please Streamlit Secrets mein GOOGLE_API_KEY add kijiye!")
+    st.stop()
+
+# 3. Native CrewAI LLM Setup (404 Error se bachne ka sabse sahi tarika)
+# Sir, hum 'gemini/' prefix use kar rahe hain jo CrewAI ko sahi endpoint par bhejta hai
 my_llm = LLM(
     model="gemini/gemini-1.5-flash", 
-    api_key=st.secrets["GOOGLE_API_KEY"]
+    api_key=st.secrets["GOOGLE_API_KEY"],
+    temperature=0.3
 )
 
-# 4. Search Tool
+# 4. Search Tool Definition
 @tool('search_tool')
 def search_tool(query: str):
-    """Search the internet for news and information."""
+    """Internet se news aur facts dhoondne ke liye search tool."""
     search = DuckDuckGoSearchRun()
     return search.run(query)[:2000]
 
-# --- UI Styling ---
+# --- UI Styling (NIT Hamirpur Theme) ---
 st.markdown("""
     <style>
-    .report-card { background-color: white; padding: 20px; border-radius: 15px; border-left: 5px solid #ff4b4b; color: black; }
+    .main { background-color: #f8f9fa; }
+    .report-card { 
+        background-color: white; 
+        padding: 25px; 
+        border-radius: 15px; 
+        border-left: 10px solid #ff4b4b;
+        box-shadow: 0px 10px 20px rgba(0,0,0,0.1);
+        color: #1e1e1e;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🕵️ Satyarth-AI")
-st.subheader("Deepfake & News Verifier")
+# --- Sidebar Control Room ---
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/2562/2562392.png", width=100)
+    st.title("Satyarth Control Room")
+    st.info("Sir, Satyarth-AI active hai aur investigation ke liye taiyar hai.")
+    st.write("---")
+    st.write("Developed by **Team Future Flux** (NIT Hamirpur)")
 
-news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", placeholder="Viral topic yahan likhein...")
+# --- Main Interface ---
+st.title("🕵️ Satyarth-AI")
+st.subheader("Deepfake & News Verifier: The Parda-Faash Engine")
+
+news_topic = st.text_input("Sir, aaj humein kis news ka 'Parda-Faash' karna hai?", placeholder="Viral news ka topic yahan likhein...")
 submit_button = st.button("Satyarth Investigation Shuru Karein", type="primary")
 
-if submit_button and news_topic:
-    with st.status("🔍 Investigation Shuru...", expanded=True) as status:
-        st.write("🕵️ Agents active ho rahe hain...")
-        
-        # Agents - Native LLM pass karein
-        scout = Agent(
-            role='Digital Detective',
-            goal=f'Verify facts for: {news_topic}',
-            backstory="Aap ek expert fact-checker detective hain.",
-            tools=[search_tool],
-            llm=my_llm,
-            verbose=True,
-            allow_delegation=False
-        )
-        
-        analyst = Agent(
-            role='Forensic Analyst',
-            goal='Prepare a final verdict report.',
-            backstory="Aap ek senior investigative journalist hain.",
-            llm=my_llm,
-            verbose=True
-        )
+if submit_button:
+    if news_topic:
+        with st.status("🔍 Forensic Investigation Shuru...", expanded=True) as status:
+            st.write("🕵️ Agents dimaag laga rahe hain...")
+            
+            # Agent 1: Scout
+            scout = Agent(
+                role='Digital Information Scout',
+                goal=f'Internet se "{news_topic}" ke baare mein sahi facts dhoondna.',
+                backstory="Aap ek expert digital detective hain jo internet ke kone-kone se sachai nikaalte hain.",
+                tools=[search_tool],
+                llm=my_llm,
+                verbose=True,
+                allow_delegation=False
+            )
 
-        # Tasks
-        task1 = Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="Facts list")
-        task2 = Task(description="Prepare final forensic report", agent=analyst, expected_output="Final verdict")
+            # Agent 2: Analyst
+            analyst = Agent(
+                role='News Verifier Analyst',
+                goal='Scout Agent ki report analyze karke final forensic verdict dena.',
+                backstory="Aap ek senior investigative journalist hain jo fake news ko pehchanne mein mahir hain.",
+                llm=my_llm,
+                verbose=True
+            )
 
-        # Crew Configuration
-        satyarth_crew = Crew(
-            agents=[scout, analyst],
-            tasks=[task1, task2],
-            process=Process.sequential,
-            # BOHOT ZAROORI: Embedder ko specifically Google par force karein
-            embedder={
-                "provider": "google",
-                "config": {"model": "models/text-embedding-004", "api_key": st.secrets["GOOGLE_API_KEY"]}
-            },
-            verbose=True
-        )
+            # Tasks
+            task1 = Task(
+                description=f"Internet par '{news_topic}' ke baare mein search karein aur facts collect karein.",
+                agent=scout,
+                expected_output="List of verified facts and credible links."
+            )
+            task2 = Task(
+                description="Facts ko analyze karke batayein ki news Real hai ya Fake, aur reason bhi dein.",
+                agent=analyst,
+                expected_output="A complete forensic report with final verdict."
+            )
 
-        st.write("🔍 Sources dhoonde ja rahe hain...")
-        result = satyarth_crew.kickoff()
-        status.update(label="Investigation Puri Hui! ✅", state="complete")
+            # Crew Execution (Master Fix for Validation Errors)
+            satyarth_crew = Crew(
+                agents=[scout, analyst],
+                tasks=[task1, task2],
+                process=Process.sequential,
+                manager_llm=my_llm,
+                memory=False, # Ise False rakhne se woh 21 validation errors nahi aayenge
+                verbose=True
+            )
 
-    st.markdown("### 📜 Final Forensic Report")
-    st.markdown(f'<div class="report-card">{result.raw}</div>', unsafe_allow_html=True)
-    st.balloons()
+            st.write("🔍 Internet se sources scan kiye ja rahe hain...")
+            result = satyarth_crew.kickoff()
+            status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
+
+        # Final Report Display
+        st.markdown("### 📜 Final Forensic Report")
+        st.markdown(f'<div class="report-card">{result.raw}</div>', unsafe_allow_html=True)
+        st.balloons()
+    else:
+        st.warning("Sir, please kuch topic toh likhiye!")
