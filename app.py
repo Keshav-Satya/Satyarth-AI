@@ -1,22 +1,28 @@
 import streamlit as st
 import os
-from crewai import Agent, Task, Crew, Process, LLM
-from crewai.tools import tool
+from crewai import Agent, Task, Crew, Process
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.tools import DuckDuckGoSearchRun
+from crewai.tools import tool
 
 # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI", page_icon="🕵️", layout="wide")
 
-# 2. Block OpenAI
+# 2. Block OpenAI & Verify Key
 os.environ["OPENAI_API_KEY"] = "NA"
+if "GOOGLE_API_KEY" not in st.secrets:
+    st.error("Sir, please Streamlit Secrets mein GOOGLE_API_KEY daaliye!")
+    st.stop()
 
-# 3. Native Gemini Setup - USING PRO VERSION (No 404 Error)
-my_llm = LLM(
-    model="gemini/gemini-1.5-pro", 
-    api_key=st.secrets["GOOGLE_API_KEY"]
+# 3. LangChain Gemini Setup (Sabse Stable Tarika)
+# Sir, hum 'gemini-1.5-pro' use kar rahe hain kyunki Flash kabhi-kabhi 404 deta hai
+my_llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-pro", 
+    google_api_key=st.secrets["GOOGLE_API_KEY"],
+    temperature=0.3
 )
 
-# 4. Search Tool Setup
+# 4. Search Tool
 @tool('search_tool')
 def search_tool(query: str):
     """Search the internet for news and information."""
@@ -48,8 +54,7 @@ if submit_button and news_topic:
             backstory="Aap ek expert fact-checker detective hain.",
             tools=[search_tool],
             llm=my_llm,
-            verbose=True,
-            allow_delegation=False
+            verbose=True
         )
         
         analyst = Agent(
@@ -64,13 +69,12 @@ if submit_button and news_topic:
         task1 = Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="Facts list")
         task2 = Task(description="Prepare final forensic report", agent=analyst, expected_output="Final verdict")
 
-        # Crew - Sabse Stable Config
+        # Crew Configuration
         satyarth_crew = Crew(
             agents=[scout, analyst],
             tasks=[task1, task2],
             process=Process.sequential,
             manager_llm=my_llm,
-            memory=False, 
             verbose=True
         )
 
@@ -79,5 +83,5 @@ if submit_button and news_topic:
         status.update(label="Investigation Puri Hui! ✅", state="complete")
 
     st.markdown("### 📜 Final Forensic Report")
-    st.markdown(f'<div class="report-card">{result.raw}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="report-card">{result}</div>', unsafe_allow_html=True)
     st.balloons()
