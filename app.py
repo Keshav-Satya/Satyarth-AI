@@ -65,34 +65,34 @@ with col2:
     
     submit_button = st.button("Satyarth Investigation Shuru Karein")
 
-# 5. Result Section
 if submit_button:
-    if news_topic:
-        with st.status("🔍 Investigation Shuru...", expanded=True) as status:
-            st.write("1. Scout Agent dimaag laga raha hai...")
-            time.sleep(1)
-            st.write("2. Internet se sources dhoonde ja rahe hain...")
-            
-           # Force Gemini at the last moment
-        os.environ["OPENAI_API_KEY"] = "NA"
-        
-        satyarth_crew = Crew(
-            agents=[scout_agent, analyst_agent],
-            tasks=[scout_task, analyst_task],
-            process=Process.sequential,
-            manager_llm=my_llm,  # <--- Gemini Boss
-            verbose=True
-        )
-        
-        result = satyarth_crew.kickoff(inputs={'news_topic': news_topic})
-            
-            status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
+        if news_topic:
+            with st.status("🔍 Investigation Shuru...", expanded=True) as status:
+                st.write("1. Scout Agent dimaag laga raha hai...")
+                time.sleep(1)
+                st.write("2. Internet se sources dhoonde ja rahe hain...")
+                
+                # Force Gemini at the last moment
+                os.environ["OPENAI_API_KEY"] = "NA"
+                
+                satyarth_crew = Crew(
+                    agents=[scout_agent, analyst_agent],
+                    tasks=[scout_task, analyst_task],
+                    process=Process.sequential,
+                    manager_llm=my_llm,
+                    verbose=True
+                )
+                
+                result = satyarth_crew.kickoff(inputs={'news_topic': news_topic})
+                
+                # Sir, dhyan dijiye niche wali line 'result' ke theek niche honi chahiye
+                status.update(label="Investigation Puri Hui! ✅", state="complete", expanded=False)
 
-        st.markdown("### 📜 Final Forensic Report")
-        st.markdown(f'<div class="report-card">{result}</div>', unsafe_allow_html=True)
-        
-        # Ek pyara sa celebration effect
-        st.balloons()
-    else:
-        st.warning("Sir, bina news ke detective kya dhoondega? Please kuch topic likhiye.")
-
+            # Result Section
+            st.markdown("### 📜 Final Forensic Report")
+            st.markdown(f'<div class="report-card">{result}</div>', unsafe_allow_html=True)
+            
+            # Celebration effect
+            st.balloons()
+        else:
+            st.warning("Sir, bina news ke detective kya dhoondega? Please kuch topic likhiye.")
