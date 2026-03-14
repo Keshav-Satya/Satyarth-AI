@@ -7,28 +7,68 @@ from langchain_community.tools import DuckDuckGoSearchRun
 import google.generativeai as genai
 from PIL import Image
 
-# # 1. Page Configuration
-st.set_page_config(page_title="Satyarth-AI | Multimodal", page_icon="🛡️", layout="wide")
+# # 1. Page Configuration (The First Step)
+st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Advanced Professional CSS (Cyber-Security Theme)
+# # 2. Cyber-Security Futuristic UI (CSS)
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-    .report-card {
-        background-color: white; padding: 30px; border-radius: 20px;
-        border-top: 10px solid #FF4B4B; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        color: #2e3e50; margin-top: 20px;
+    /* Global Styles */
+    .stApp {
+        background: radial-gradient(circle at center, #0e1117 0%, #000000 100%);
+        color: #e0e0e0;
     }
-    .main-title { color: #1e3799; font-size: 3rem; font-weight: 800; text-align: center; }
+    
+    /* Glassmorphism Report Card */
+    .report-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        margin-top: 20px;
+    }
+
+    /* Animated Gradient Title */
+    .main-title {
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 50%, #4facfe 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 4rem;
+        font-weight: 900;
+        text-align: center;
+        animation: shine 3s linear infinite;
+    }
+    @keyframes shine { to { background-position: 200% center; } }
+
+    /* Custom Buttons */
+    .stButton>button {
+        width: 100%;
+        background: linear-gradient(45deg, #1e3799, #118ab2);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: bold;
+        transition: 0.4s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .stButton>button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(30, 55, 153, 0.4);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# # 3. API Keys Verification
+# # 3. API Keys Check
 if "SAMBANOVA_API_KEY" not in st.secrets or "GOOGLE_API_KEY" not in st.secrets:
-    st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GOOGLE_API_KEY dono daaliye!")
+    st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GOOGLE_API_KEY check karein!")
     st.stop()
 
-# # 4. Initialize Models (SambaNova for Text)
+# # 4. LLM & Tools Initialization
 text_llm = LLM(
     model="openai/meta-llama/Llama-3.3-70B-Instruct",
     base_url="https://api.sambanova.ai/v1",
@@ -36,106 +76,110 @@ text_llm = LLM(
     temperature=0.1
 )
 
-# # 5. Search Tool (Optimized for Tokens)
 @tool('search_tool')
 def search_tool(query: str):
-    """Search internet for official and local news facts."""
+    """Search internet for official/local facts (200 char limit)."""
     search = DuckDuckGoSearchRun()
-    # Token saving logic (200 characters)
     return search.run(query)[:200]
 
-# # 6. Sidebar Configuration
+# # 5. Sidebar Dashboard (Exciting UI)
 with st.sidebar:
-    st.markdown("# 🛡️ Satyarth-AI")
-    st.success("✅ System: Multimodal Active")
+    st.markdown("<h2 style='text-align: center;'>🛡️ Satyarth-AI</h2>", unsafe_allow_html=True)
     st.write("---")
-    st.write("Developed by **Team Future Flux** | NIT Hamirpur")
+    st.markdown("### 📊 System Status")
+    col_s1, col_s2 = st.columns(2)
+    col_s1.metric("Engine", "Active 🟢")
+    col_s2.metric("Forensic", "Mode 🛡️")
+    
+    st.info("📡 SambaNova: Connected")
+    st.info("💠 Gemini Vision: Ready")
+    
+    st.write("---")
+    st.markdown("Developed by **Team Future Flux**")
+    st.caption("NIT Hamirpur | Electrothon 8.0")
 
-# # 7. Main Dashboard
-st.markdown('<h1 class="main-title">🛡️ Satyarth-AI</h1>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Advanced Disinformation Detection & Image Forensic Engine</p>", unsafe_allow_html=True)
+# # 6. Header
+st.markdown('<h1 class="main-title">SATYARTH-AI</h1>', unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #aaa;'>Hyper-Local Disinformation Detection & Image Forensic Engine</p>", unsafe_allow_html=True)
 st.write("---")
 
-tab1, tab2 = st.tabs(["📝 Text Verification", "📸 Image Investigation"])
+tab1, tab2 = st.tabs(["🔍 Text Verification", "🔬 Image Investigation"])
 
-# --- TAB 1: Text Investigation (Local/Official News + Animations) ---
+# --- TAB 1: Text Investigation ---
 with tab1:
-    news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", placeholder="e.g. Is viral NASA photo real?")
-    location = st.text_input("Location (e.g. Mandi, Hamirpur, Himachal ya Global)", value="Global")
-    
-    if st.button("Satyarth Analysis Shuru Karein", type="primary"):
+    col_in1, col_in2 = st.columns([3, 1])
+    with col_in1:
+        news_topic = st.text_input("News headline daalein...", placeholder="e.g. Is NIT Hamirpur closing tomorrow?")
+    with col_in2:
+        location = st.text_input("Location", value="Global")
+
+    if st.button("🚀 Start Deep Forensic Analysis"):
         if news_topic:
-            with st.status("🔍 Searching & Analyzing Data...", expanded=True) as status:
-                st.write("🌐 Initializing Forensic Agents...")
-
-                # Agent 1: Regional Scout (Official First Logic)
+            with st.status("🕵️ Agents investigating the web...", expanded=True) as status:
+                st.write("📡 Scanning Government Portals & Local News...")
+                
+                # Agents Logic (Official Priority)
                 scout = Agent(
-                    role='Official & Regional Scout',
-                    goal=f'Verify facts for: {news_topic} in {location}. Prioritize .gov sites and local portals.',
-                    backstory=f"Aap ek detective hain jo {location} ke official documents aur local news se sachai nikaalte hain. Har fact ke saath URL link collect karein.",
-                    tools=[search_tool],
-                    llm=text_llm,
-                    verbose=True
+                    role='Official Data Scout',
+                    goal=f'Verify {news_topic} in {location}. Prioritize .gov sites & local portals.',
+                    backstory=f"Aap ek investigator hain jo {location} ke official links aur credible news portals scan karte hain.",
+                    tools=[search_tool], llm=text_llm, verbose=True
                 )
-
-                # Agent 2: Forensic Analyst (Scoring & Sources)
                 analyst = Agent(
                     role='Forensic Analyst',
-                    goal='Final forensic report in Hinglish. MUST include Credibility Score (%) and "Sources Used" links.',
-                    backstory="Aap government sources ko 50% priority dete hain aur final report mein saare links (URLs) show karte hain.",
-                    llm=text_llm,
-                    verbose=True
+                    goal='Create a Hinglish report with Credibility Score (%) and Source Links.',
+                    backstory="Aap government sources ko 50% weightage dete hain.",
+                    llm=text_llm, verbose=True
                 )
 
-                task1 = Task(description=f"Find current facts and evidence for: {news_topic} in {location}.", agent=scout, expected_output="List of verified facts and URLs.")
-                task2 = Task(description="Synthesize findings into a Hinglish report with Score Card and Sources.", agent=analyst, expected_output="Final Forensic Report.")
-
-                crew = Crew(agents=[scout, analyst], tasks=[task1, task2], process=Process.sequential)
+                crew = Crew(
+                    agents=[scout, analyst],
+                    tasks=[
+                        Task(description=f"Investigate {news_topic} in {location} context.", agent=scout, expected_output="Facts & URLs"),
+                        Task(description="Generate final Hinglish report with Score Card.", agent=analyst, expected_output="Final Report")
+                    ],
+                    process=Process.sequential
+                )
+                
                 result = crew.kickoff()
+                status.update(label="Analysis Complete! ✅", state="complete")
+
+                # Results & Animations
+                st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
                 
-                status.update(label="Investigation Complete! ✅", state="complete")
-                
-                # --- Result Display & Animations ---
-                st.markdown(f'<div class="report-card"><h3>📜 Satyarth Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
-                
-                verdict_lower = result.raw.lower()
-                # Party Vibe for True News
-                if any(word in verdict_lower for word in ["real", "true", "verified", "sahi", "authentic"]):
-                    st.success("🎉 Mubaarak ho Sir! Ye news Sacchi hai.")
+                res_text = result.raw.lower()
+                if any(x in res_text for x in ["real", "true", "authentic", "sahi"]):
+                    st.success("🎉 TRUTH DETECTED!")
                     st.balloons()
-                # Sad Vibe for Fake News
-                elif any(word in verdict_lower for word in ["fake", "false", "misleading", "galat", "fraud"]):
-                    st.error("🚨 Savdhaan Sir! Ye news Fake hai.")
+                elif any(x in res_text for x in ["fake", "false", "misleading", "galat"]):
+                    st.error("🚨 WARNING: DISINFORMATION DETECTED!")
                     st.snow()
-                else:
-                    st.info("Sir, report inconclusive hai. Sources check karein.")
         else:
-            st.warning("Sir, please ek news topic enter kijiye!")
+            st.warning("Sir, please enter a news topic first!")
 
-# --- TAB 2: Image Investigation (Gemini Flash) ---
+# --- TAB 2: Image Investigation ---
 with tab2:
-    st.info("Sir, yahan aap Live Photo khinch sakte hain ya File upload kar sakte hain!")
-    cam_on = st.toggle("📸 Camera On/Off Karein", value=False)
+    st.markdown("### 📸 Image Forensic Module")
+    cam_toggle = st.toggle("🎥 Activate Live Camera Feed", value=False)
     
-    col1, col2 = st.columns(2)
-    with col1:
-        img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
-    with col2:
-        cam_file = st.camera_input("Live Photo click karein") if cam_on else st.write("👈 Camera off hai.")
+    col_up1, col_up2 = st.columns(2)
+    with col_up1:
+        img_upload = st.file_uploader("Upload Image", type=['jpg', 'png', 'jpeg'])
+    with col_up2:
+        img_cam = st.camera_input("Take Photo") if cam_toggle else st.info("Camera is currently OFF.")
 
-    final_img = img_file or cam_file
-    
-    if final_img:
-        st.image(final_img, caption="Scan ke liye image taiyar hai.", width=400)
-        if st.button("AI Image Detection", key="img_btn"):
-            with st.spinner("🔍 Forensic Sentinel scanning pixels..."):
+    final_image = img_upload or img_cam
+    if final_image:
+        st.image(final_image, caption="Investigating Image...", width=400)
+        if st.button("🔍 Run Image Forensic Scan"):
+            with st.spinner("Analyzing pixels for AI artifacts..."):
                 try:
                     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
                     model = genai.GenerativeModel('gemini-1.5-flash')
-                    img = Image.open(final_img)
-                    response = model.generate_content(["Analyze image for AI markers. Verdict in Hinglish.", img])
-                    st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{response.text}</div>', unsafe_allow_html=True)
+                    img_obj = Image.open(final_image)
+                    response = model.generate_content(["Analyze image for AI markers. Verdict in Hinglish.", img_obj])
+                    st.markdown(f'<div class="report-card"><h3>🔬 Image Verdict</h3>{response.text}</div>', unsafe_allow_html=True)
                     if "real" in response.text.lower(): st.balloons()
                     else: st.snow()
                 except Exception as e:
-                    st.error(f"Sir, error: {e}")
+                    st.error(f"Error: {e}")
