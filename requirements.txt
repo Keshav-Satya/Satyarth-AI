@@ -5,3 +5,4 @@ duckduckgo-search
 streamlit
 Pillow
 google-generativeai
+groq
