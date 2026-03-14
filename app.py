@@ -23,26 +23,24 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. API Keys Verification (SAMBANOVA & GROQ)
+# 3. API Keys Verification
 if "SAMBANOVA_API_KEY" not in st.secrets or "GROQ_API_KEY" not in st.secrets:
     st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GROQ_API_KEY dono daaliye!")
     st.stop()
 
-# 4. Initialize Clients & LLMs
-# Text model (SambaNova Llama 3.3)
+# 4. Initialize Clients
 text_llm = LLM(
     model="openai/Meta-Llama-3.3-70B-Instruct",
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"]
 )
 
-# Groq Client for Vision
 groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 def encode_image(image_file):
     return base64.b64encode(image_file.getvalue()).decode('utf-8')
 
-# 5. Search Tool for Agents
+# 5. Search Tool
 @tool('search_tool')
 def search_tool(query: str):
     """Search internet for latest news facts."""
@@ -67,95 +65,70 @@ with tab1:
     if st.button("Satyarth Analysis Shuru Karein", type="primary"):
         if news_topic:
             with st.status("🔍 Searching & Analyzing...", expanded=True) as status:
-                st.write("🌐 Initializing Satyarth Agents...")
-                
                 scout = Agent(
                     role='Digital Detective',
                     goal=f'Verify facts for: {news_topic}',
-                    backstory="Aap ek expert fact-checker hain jo internet se sachai nikaalte hain.",
+                    backstory="Aap ek expert fact-checker hain.",
                     tools=[search_tool],
                     llm=text_llm,
                     verbose=True,
                     allow_delegation=False
                 )
-                
                 analyst = Agent(
                     role='Forensic Analyst',
-                    goal='Final Verdict and Report in Hinglish',
-                    backstory="Aap ek senior investigative journalist hain jo authenticity check karte hain.",
+                    goal='Final Verdict in Hinglish',
+                    backstory="Aap ek senior investigative journalist hain.",
                     llm=text_llm,
                     verbose=True
                 )
-                
                 crew = Crew(
                     agents=[scout, analyst],
                     tasks=[
-                        Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="List of facts"),
-                        Task(description="Prepare final report in Hinglish", agent=analyst, expected_output="Final verdict")
+                        Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="Facts"),
+                        Task(description="Report in Hinglish", agent=analyst, expected_output="Verdict")
                     ],
-                    process=Process.sequential,
-                    verbose=True
+                    process=Process.sequential
                 )
-                
                 result = crew.kickoff()
                 status.update(label="Investigation Complete! ✅", state="complete")
-                
             st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
             st.balloons()
-        else:
-            st.warning("Sir, please ek topic enter kijiye!")
 
-# --- TAB 2: Image Investigation (GROQ VISION FIX) ---
+# --- TAB 2: Image Investigation (FIXED) ---
 with tab2:
-    st.info("Sir, yahan hum Llama 3.2 Vision use kar rahe hain jo Deepfakes pakadne mein mahir hai! 🚀")
+    st.info("Sir, Llama 3.2 90B Vision use ho raha hai jo sabse powerful hai! 🚀")
     img_file = st.file_uploader("Photo Upload Karein", type=['jpg', 'png', 'jpeg'])
-    
     if img_file:
         st.image(img_file, caption="Investigation ke liye image taiyar hai.", width=400)
-
-    if st.button("AI Detection Shuru Karein", key="img_btn"):
-            with st.spinner("🔍 Image ke pixels analyze ho rahe hain (Groq Power)..."):
+        if st.button("AI Detection Shuru Karein", key="img_btn"):
+            with st.spinner("🔍 Pixels analyze ho rahe hain..."):
                 try:
-                    # 1. Image ko encode karein
-                    base64_image = encode_image(img_file)
-                    
-                    # 2. Fail-Safe Model Logic
+                    base64_img = encode_image(img_file)
+                    # Try 90B first, then 11B as backup
                     try:
-                        # Pehle 90B model try karega (Sabse powerful)
-                        response = groq_client.chat.completions.create(
+                        resp = groq_client.chat.completions.create(
                             messages=[{
                                 "role": "user",
                                 "content": [
-                                    {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                                    {"type": "text", "text": "Analyze this image for AI generation markers. Verdict in Hinglish."},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
                                 ],
                             }],
-                            model="llama-3.2-90b-vision-preview", 
+                            model="llama-3.2-90b-vision-preview",
                         )
-                    except Exception:
-                        # Agar 90B fail hua, toh 11B backup use karega
-                        response = groq_client.chat.completions.create(
+                    except:
+                        resp = groq_client.chat.completions.create(
                             messages=[{
                                 "role": "user",
                                 "content": [
-                                    {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                                    {"type": "text", "text": "Analyze this image for AI generation markers. Verdict in Hinglish."},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
                                 ],
                             }],
-                            model="llama-3.2-11b-vision", 
+                            model="llama-3.2-11b-vision-preview",
                         )
                     
-                    # 3. Report display karein (Verdict nikalne ke liye)
-                    report = response.choices[0].message.content
-                    st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{report}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis</h3>{resp.choices[0].message.content}</div>', unsafe_allow_html=True)
                     st.balloons()
-
                 except Exception as e:
-                    # Final error catch agar dono models fail ho jayein
-                    st.error(f"Sir, Groq error: {e}. Please check API limits.")
-        
-        
-           
-
-
-
+                    st.error(f"Sir, error aaya: {e}")
