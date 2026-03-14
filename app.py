@@ -4,165 +4,140 @@ import base64
 from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
-from groq import Groq
 from PIL import Image
+import google.generativeai as genai
 
-# 1. Page Configuration
-st.set_page_config(page_title="Satyarth-AI | Multimodal", page_icon="🕵️", layout="wide")
+# # 1. Page Configuration
+st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🕵️", layout="wide")
 
-# 2. Advanced Professional CSS (Cyber-Security Theme)
+# # 2. NUCLEAR CSS - Existing UI Preserved
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-    .report-card {
-        background-color: white; padding: 30px; border-radius: 20px;
-        border-top: 10px solid #FF4B4B; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        color: #2e3e50; margin-top: 20px;
+    .stApp { background: #020617 !important; color: #ffffff !important; }
+    .main-title {
+        color: #38bdf8 !important; font-size: 4.5rem; font-weight: 900;
+        text-align: center; text-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
+        margin-bottom: 20px;
     }
-    .main-title { color: #1e3799; font-size: 3rem; font-weight: 800; text-align: center; }
+    .scanner {
+        width: 100%; height: 6px; background: #38bdf8;
+        box-shadow: 0 0 20px #38bdf8; position: relative; overflow: hidden;
+        margin-bottom: 25px; border-radius: 10px;
+    }
+    .scanner::after {
+        content: ''; display: block; width: 250px; height: 100%;
+        background: #ffffff; position: absolute; animation: scan 2s linear infinite;
+    }
+    @keyframes scan { 0% { left: -250px; } 100% { left: 100%; } }
+    button[data-baseweb="tab"] { background-color: transparent !important; color: #94a3b8 !important; font-weight: 700 !important; border: none !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { border-bottom: 4px solid #ef4444 !important; color: #ffffff !important; }
+    [data-testid="stWidgetLabel"] p {
+        font-size: 1.35rem !important; font-weight: 900 !important; color: #ffffff !important; 
+        background: #16a34a !important; padding: 8px 20px !important; 
+        border-radius: 8px !important; display: inline-block !important; border: 2px solid #ffffff !important;
+    }
+    div[data-baseweb="input"] { background-color: #0f172a !important; border: 2px solid #38bdf8 !important; }
+    input, textarea { color: #38bdf8 !important; font-weight: 800 !important; -webkit-text-fill-color: #38bdf8 !important; }
+    .stButton>button { font-weight: 900 !important; font-size: 1.2rem !important; text-transform: uppercase; border-radius: 12px !important; padding: 15px 30px !important; border: 3px solid #ffffff !important; transition: 0.3s; }
+    .main-btn .stButton>button { background: #1e40af !important; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; }
+    .red-btn .stButton>button { background: #dc2626 !important; color: #ffffff !important; }
+    [data-testid="stSidebar"] { background-color: #020617 !important; border-right: 3px solid #38bdf8; }
+    .metric-container { background: #1e293b !important; padding: 15px; border-radius: 12px; border: 2px solid #38bdf8; margin-bottom: 15px; }
+    .metric-container b, .metric-container small { color: #ffffff !important; }
+    .stExpander { border: 2px solid #38bdf8 !important; background: #0f172a !important; }
+    .stExpander p, .stExpander li { color: #ffffff !important; font-weight: 700; }
+    .report-card { background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(25px); padding: 30px; border-radius: 20px; border: 2px solid #38bdf8; color: #ffffff !important; line-height: 1.8; }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. API Keys Verification
-if "SAMBANOVA_API_KEY" not in st.secrets or "GROQ_API_KEY" not in st.secrets:
-    st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GROQ_API_KEY dono daaliye!")
+# # 3. Engine Setup
+if "SAMBANOVA_API_KEY" not in st.secrets:
+    st.error("Sir, Secrets mein API key check karein!")
     st.stop()
 
-# 4. Initialize Models & Clients
-# Text model (SambaNova - Llama 3.3)
 text_llm = LLM(
-    model="openai/Meta-Llama-3.3-70B-Instruct",
+    model="sambanova/Meta-Llama-3.3-70B-Instruct", 
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"]
 )
 
-# Groq Client for Vision
-groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-
-def encode_image(image_file):
-    """Converts image to base64 for Groq Vision API."""
-    return base64.b64encode(image_file.getvalue()).decode('utf-8')
-
 @tool('search_tool')
 def search_tool(query: str):
-    """Search internet for news facts with extreme token saving."""
+    """Forensic search."""
     search = DuckDuckGoSearchRun()
-    # Sir, 200 characters fact-checking ke main context ke liye kaafi hain
-    search_result = search.run(query)
-    return search_result[:200]
+    return search.run(query)[:500]
 
-# --- Sidebar Configuration ---
+# # 4. Sidebar
 with st.sidebar:
-    st.markdown("# 🕵️ Satyarth-AI")
-    st.success("✅ System: Multimodal Active")
+    st.markdown('<p style="color:#38bdf8; font-weight:900; font-size:1.8rem;">🛡️ Satyarth Control</p>', unsafe_allow_html=True)
     st.write("---")
-    st.write("Developed by **Team Future Flux** | NIT Hamirpur")
+    st.markdown('<div class="metric-container"><b>SambaNova Engine</b><br><small>STATUS: ACTIVE 🟢</small></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-container"><b>Forensic Agents</b><br><small>MODE: HYPER-LOCAL 📍</small></div>', unsafe_allow_html=True)
+    with st.expander("ℹ️ How Satyarth-AI Works?"):
+        st.write("- **Scout Agent:** Gov portals scan karta hai.")
+        st.write("- **Analyst Agent:** Hinglish report likhta hai.")
+        st.write("- **Vision AI:** Pixels analyze karta hai.")
+    st.write("---")
+    st.markdown('<p style="color:#38bdf8; font-weight:900;">Developed by Team Future Flux</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#ffffff; font-weight:800; background:#2563eb; padding:5px 12px; border-radius:6px; border:1px solid white;">📩 satyarthai2007@gmail.com</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#ffffff; font-weight:800; margin-top:10px;">📍 NIT Hamirpur</p>', unsafe_allow_html=True)
 
-# --- Main Dashboard ---
-st.markdown('<h1 class="main-title">🕵️ Satyarth-AI</h1>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Advanced Disinformation Detection & Image Forensic Engine</p>", unsafe_allow_html=True)
+# # 5. Header
+st.markdown('<div class="scanner"></div>', unsafe_allow_html=True) 
+st.markdown('<h1 class="main-title">🕵️ SATYARTH-AI 🕵️</h1>', unsafe_allow_html=True)
 st.write("---")
 
-tab1, tab2 = st.tabs(["📝 Text Verification", "📷 Image Investigation"])
+tab1, tab2 = st.tabs(["📝 Text Verification", "🔬 Image Investigation"])
 
-# --- TAB 1: Text Investigation (CrewAI Power) ---
+# --- TAB 1: TEXT ---
 with tab1:
-    news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", placeholder="e.g. Is viral NASA photo real?")
-    
-    if st.button("Satyarth Analysis Shuru Karein", type="primary"):
-        if news_topic:
-            with st.status("🔍 Searching & Analyzing Data...", expanded=True) as status:
-                st.write("🌐 Initializing Forensic Agents...")
-                
-                # Agent 1: Fact Checker
-                scout = Agent(
-                    role='Digital Detective',
-                    goal=f'Verify all facts related to: {news_topic}',
-                    backstory="Aap ek expert fact-checker hain jo internet ke kone-kone se sachai nikaalte hain.",
-                    tools=[search_tool],
-                    llm=text_llm,
-                    verbose=True,
-                    allow_delegation=False
-                )
-                
-                # Agent 2: Reporter
-                analyst = Agent(
-                    role='Forensic Analyst',
-                    goal='Create a final verdict report in Hinglish.',
-                    backstory="Aap ek senior investigative journalist hain jo news ki authenticity check karte hain.",
-                    llm=text_llm,
-                    verbose=True
-                )
-                
-                # Orchestrate the Crew
-                crew = Crew(
-                    agents=[scout, analyst],
-                    tasks=[
-                        Task(description=f"Find current facts and evidence for: {news_topic}", agent=scout, expected_output="A list of verified facts."),
-                        Task(description="Synthesize findings into a final Hinglish report with a clear verdict.", agent=analyst, expected_output="Final Hinglish verdict report.")
-                    ],
-                    process=Process.sequential
-                )
-                
-                result = crew.kickoff()
-                status.update(label="Investigation Complete! ✅", state="complete")
-            
-            st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
-            st.balloons()
-        else:
-            st.warning("Sir, please ek topic ya news headline enter kijiye!")
-
-# --- TAB 2: Image Investigation (With Camera Toggle) ---
-with tab2:
-    st.info("Sir, yahan aap photo upload karein ya Camera switch ka upyog karein! 🚀")
-    
-    # 1. Camera Toggle Switch
-    cam_on = st.toggle("📸 Camera On/Off Karein", value=False, key="cam_toggle")
-
-    col1, col2 = st.columns(2)
-    
+    col1, col2 = st.columns([2, 1])
     with col1:
-        img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
-    
+        news_topic = st.text_input("News Headline Daalein 👇", placeholder="e.g. Enter news...")
     with col2:
-        cam_file = None
-        # Agar switch 'On' hai, tabhi camera input dikhao
-        if cam_on:
-            cam_file = st.camera_input("Live Photo click karein")
-        else:
-            st.write("👈 Camera on karne ke liye switch ka upyog karein.")
+        # Added Region Selection Option
+        region = st.text_input("Region (Optional) 📍", placeholder="District, State")
 
-    # Input Priority (Upload ya Camera)
-    final_img = img_file or cam_file
-    
-    if final_img:
-        st.image(final_img, caption="Scan ke liye image taiyar hai.", width=400)
-        
-        if st.button("AI Detection Shuru Karein", key="img_btn"):
-            if "GOOGLE_API_KEY" not in st.secrets:
-                st.error("Sir, please Secrets mein GOOGLE_API_KEY daaliye!")
-            else:
-                with st.spinner("🔍 Forensic Sentinel is analyzing the pixels..."):
-                    try:
-                        import google.generativeai as genai
-                        from PIL import Image
-                        
-                        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-                        
-                        # Active model dhoondne ki logic
-                        all_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-                        working_model_name = next((p for p in ['models/gemini-1.5-flash', 'models/gemini-1.5-pro'] if p in all_models), None)
+    st.markdown('<div class="main-btn">', unsafe_allow_html=True)
+    if st.button("🚀 START DEEP FORENSIC ANALYSIS", key="text_btn"):
+        if news_topic:
+            with st.status("🕵️ Investigating sources...", expanded=True) as status:
+                scout = Agent(role='Scout', goal=f'Verify {news_topic} in {region}.', backstory="Detective.", tools=[search_tool], llm=text_llm)
+                analyst = Agent(role='Verifier', goal='Write professional Hinglish report.', backstory="Lead Analyst.", llm=text_llm)
+                crew = Crew(agents=[scout, analyst], tasks=[Task(description=f"Check {news_topic}", agent=scout, expected_output="Facts"), Task(description="Report", agent=analyst, expected_output="Report")], process=Process.sequential, max_rpm=1)
+                result = crew.kickoff()
+                st.session_state.final_report = result.raw
+                status.update(label="Analysis Complete! ✅", state="complete")
+            st.balloons()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-                        if working_model_name:
-                            model = genai.GenerativeModel(working_model_name)
-                            img = Image.open(final_img)
-                            prompt = "Analyze this image for AI generation markers. Verdict in Hinglish."
-                            response = model.generate_content([prompt, img])
-                            
-                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis Report</h3>{response.text}</div>', unsafe_allow_html=True)
-                            st.balloons()
-                        else:
-                            st.error("Sir, koi vision model active nahi mila.")
-                            
-                    except Exception as e:
-                        st.error(f"Sir, detection mein issue aaya: {e}")
+    if "final_report" in st.session_state:
+        st.markdown(f'<div class="report-card"><h3>📜 Forensic Verification Report</h3>{st.session_state.final_report}</div>', unsafe_allow_html=True)
+        st.write("---")
+        # Added Human Verification Option after report
+        st.markdown('<div class="red-btn">', unsafe_allow_html=True)
+        if st.button("👥 Get Human Verification"):
+            st.info("you will be notified result shortly")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# --- TAB 2: IMAGE ---
+with tab2:
+    st.markdown("### 🔬 Image Forensic Module")
+    cam_on = st.toggle("🎥 Activate Live Camera Feed", value=False)
+    up_c, cam_c = st.columns(2)
+    img_cam = None 
+    with up_c: img_up = st.file_uploader("Upload Image", type=['jpg','png','jpeg'])
+    with cam_c: 
+        if cam_on: img_cam = st.camera_input("Take Photo")
+        else: st.info("Camera is OFF.")
+    final_img = img_up if img_up is not None else img_cam
+    if final_img is not None:
+        st.image(final_img, caption="Forensic Scan Ready.", width=500)
+        if st.button("🔍 RUN PIXEL ANALYSIS", key="img_btn"):
+            with st.spinner("Analyzing..."):
+                try:
+                    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    response = model.generate_content(["Analyze image markers. Hinglish Verdict.", Image.open(final_img)])
+                    st.markdown(f'<div class="report-card"><h3>🔬 Verdict</h3>{response.text}</div>', unsafe_allow_html=True)
+                except Exception as e: st.error(f"Error: {e}")
