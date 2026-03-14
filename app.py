@@ -118,35 +118,38 @@ with tab2:
                 try:
                     base64_image = encode_image(img_file)
                     
-                    # --- Fail-Safe Model Logic ---
-            try:
-                # Pehle 90B (Sabse Powerful & Stable) try karega
-                response = groq_client.chat.completions.create(
-                    messages=[{
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
-                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
-                        ],
-                    }],
-                    model="llama-3.2-90b-vision-preview", 
-                )
-            except Exception:
-                # Agar 90B fail hua (Quota ya Maintenance), toh 11B try karega
-                response = groq_client.chat.completions.create(
-                    messages=[{
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
-                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
-                        ],
-                    }],
-                    model="llama-3.2-11b-vision", 
-                )
+      base64_image = encode_image(img_file)
+                
+                # --- Fail-Safe Model Logic ---
+                try:
+                    # Pehle 90B try karega
+                    response = groq_client.chat.completions.create(
+                        messages=[{
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                            ],
+                        }],
+                        model="llama-3.2-90b-vision-preview", 
+                    )
+                except Exception:
+                    # Agar 90B fail hua, toh 11B backup use karega
+                    response = groq_client.chat.completions.create(
+                        messages=[{
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                            ],
+                        }],
+                        model="llama-3.2-11b-vision", 
+                    )
                     
                     report = response.choices[0].message.content
                     st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{report}</div>', unsafe_allow_html=True)
                     st.balloons()
                 except Exception as e:
                     st.error(f"Sir, Groq error: {e}. Please check model name or API limits.")
+
 
