@@ -59,17 +59,53 @@ st.write("---")
 # Creating Tabs for Text and Image
 tab1, tab2 = st.tabs(["📝 Text Verification", "📸 Image Investigation"])
 
-# --- TAB 1: Text Investigation ---
+# --- TAB 1: Text Investigation (Corrected Block) ---
 with tab1:
     news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", key="text_in")
     if st.button("Satyarth Analysis Shuru Karein", type="primary"):
-        with st.status("🔍 Searching & Analyzing...", expanded=True):
-            scout = Agent(role='Detective', goal=f'Verify {news_topic}', tools=[search_tool], llm=text_llm, verbose=True)
-            analyst = Agent(role='Analyst', goal='Final Verdict', llm=text_llm, verbose=True)
-            crew = Crew(agents=[scout, analyst], tasks=[Task(description=f'Verify {news_topic}', agent=scout, expected_output="Facts"), Task(description='Final Report', agent=analyst, expected_output="Verdict")], verbose=True)
-            result = crew.kickoff()
-        st.markdown(f'<div class="report-card"><h3>📜 Report</h3>{result.raw}</div>', unsafe_allow_html=True)
-        st.balloons()
+        if news_topic:
+            with st.status("🔍 Searching & Analyzing...", expanded=True) as status:
+                st.write("🛡️ Initializing Satyarth Agents...")
+                
+                # Agent 1: Scout with Backstory
+                scout = Agent(
+                    role='Digital Detective',
+                    goal=f'Verify facts for: {news_topic}',
+                    backstory="Aap ek expert fact-checker hain jo internet ke kone-kone se sachai nikaalte hain.",
+                    tools=[search_tool],
+                    llm=text_llm,
+                    verbose=True,
+                    allow_delegation=False
+                )
+                
+                # Agent 2: Analyst with Backstory
+                analyst = Agent(
+                    role='Forensic Analyst',
+                    goal='Final Verdict and Report',
+                    backstory="Aap ek senior investigative journalist hain jo news ki authenticity check karte hain.",
+                    llm=text_llm,
+                    verbose=True
+                )
+
+                # Tasks Setup
+                task1 = Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="List of facts")
+                task2 = Task(description="Prepare final report", agent=analyst, expected_output="Final verdict")
+
+                crew = Crew(
+                    agents=[scout, analyst], 
+                    tasks=[task1, task2], 
+                    process=Process.sequential,
+                    verbose=True
+                )
+                
+                st.write("🌐 Scanning global databases...")
+                result = crew.kickoff()
+                status.update(label="Investigation Complete! ✅", state="complete")
+                
+            st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
+            st.balloons()
+        else:
+            st.warning("Sir, please ek topic enter kijiye!")
 
 # --- TAB 2: Image Investigation (Camera & Upload) ---
 with tab2:
@@ -95,3 +131,4 @@ with tab2:
                 
             st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{response.text}</div>', unsafe_allow_html=True)
             st.balloons()
+
