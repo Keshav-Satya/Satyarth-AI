@@ -110,7 +110,7 @@ with tab1:
         else:
             st.warning("Sir, please ek topic ya news headline enter kijiye!")
 
-# --- TAB 2: Image Investigation (The "Never-Fail" Gemini Flash) ---
+# --- TAB 2: Image Investigation (Self-Healing Gemini) ---
 with tab2:
     st.info("Sir, yahan hum Gemini 1.5 Flash use kar rahe hain jo sabse stable aur fast hai! 🚀")
     img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
@@ -118,7 +118,8 @@ with tab2:
     if img_file:
         st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
         
-       if st.button("AI Detection Shuru Karein", key="img_btn"):
+        # Line 121 starts exactly here (aligned inside 'if img_file:')
+        if st.button("AI Detection Shuru Karein", key="img_btn"):
             if "GOOGLE_API_KEY" not in st.secrets:
                 st.error("Sir, please Secrets mein GOOGLE_API_KEY daaliye!")
             else:
@@ -129,10 +130,10 @@ with tab2:
                         
                         genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
                         
-                        # 1. Dimaag Lagao: Pehle available models ki list nikaalo
+                        # 1. Available models ki list nikaalo
                         all_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
                         
-                        # 2. Priority List (Inmein se jo bhi mil jaye)
+                        # 2. Priority List check karein
                         priority_list = [
                             'models/gemini-1.5-flash',
                             'models/gemini-1.5-flash-latest',
@@ -140,29 +141,23 @@ with tab2:
                             'models/gemini-1.5-flash-8b'
                         ]
                         
-                        working_model_name = None
-                        for p_model in priority_list:
-                            if p_model in all_models:
-                                working_model_name = p_model
-                                break
+                        working_model_name = next((p for p in priority_list if p in all_models), None)
                         
                         if not working_model_name:
-                            # Agar list mein se koi nahi mila, toh jo pehla vision model ho use le lo
                             vision_models = [m for m in all_models if 'flash' in m or 'pro' in m]
                             working_model_name = vision_models[0] if vision_models else None
 
                         if working_model_name:
-                            st.write(f"✅ Active Model Found: `{working_model_name}`")
                             model = genai.GenerativeModel(working_model_name)
                             img = Image.open(img_file)
                             
-                            prompt = "Analyze this image for AI generation markers (textures, lighting). Verdict in Hinglish."
+                            prompt = "Analyze this image for AI generation markers. Verdict in Hinglish."
                             response = model.generate_content([prompt, img])
                             
                             st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis</h3>{response.text}</div>', unsafe_allow_html=True)
                             st.balloons()
                         else:
-                            st.error(f"Sir, aapki key ke liye koi vision model nahi mila. Available models: {all_models}")
+                            st.error(f"Sir, vision model nahi mila. Available models: {all_models}")
                             
                     except Exception as e:
                         st.error(f"Sir, system crash error: {e}")
