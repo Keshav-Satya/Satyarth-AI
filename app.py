@@ -43,11 +43,13 @@ def encode_image(image_file):
     """Converts image to base64 for Groq Vision API."""
     return base64.b64encode(image_file.getvalue()).decode('utf-8')
 
-# 5. Search Tool for Agents
 @tool('search_tool')
 def search_tool(query: str):
-    """Search internet for latest news and facts."""
-    return DuckDuckGoSearchRun().run(query)[:2000]
+    """Search internet for news facts with extreme token saving."""
+    search = DuckDuckGoSearchRun()
+    # Sir, 200 characters fact-checking ke main context ke liye kaafi hain
+    search_result = search.run(query)
+    return search_result[:200]
 
 # --- Sidebar Configuration ---
 with st.sidebar:
@@ -164,3 +166,4 @@ with tab2:
                             
                     except Exception as e:
                         st.error(f"Sir, detection mein issue aaya: {e}")
+
