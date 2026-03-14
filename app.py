@@ -35,9 +35,11 @@ text_llm = LLM(
     api_key=st.secrets["SAMBANOVA_API_KEY"]
 )
 
-# Vision model (Gemini) - Specifically for Image Analysis
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-vision_model = genai.GenerativeModel('gemini-1.5-flash')
+# Purana code:
+# vision_model = genai.GenerativeModel('gemini-1.5-flash')
+
+# Naya Updated Code:
+vision_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
 # 5. Search Tool
 @tool('search_tool')
@@ -131,4 +133,5 @@ with tab2:
                 
             st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{response.text}</div>', unsafe_allow_html=True)
             st.balloons()
+
 
