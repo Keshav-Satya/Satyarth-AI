@@ -119,41 +119,47 @@ with tab2:
         st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
         
         if st.button("AI Detection Shuru Karein", key="img_btn"):
-            with st.spinner("🔍 Pixels analyze ho rahe hain (Groq Power)..."):
+            with st.spinner("🔍 Hyper-Sentinel is scanning across multiple models..."):
                 try:
-                    # Encode the image
+                    # 1. Image encode karein
                     base64_img = encode_image(img_file)
                     
-                    # Fail-Safe Model Logic (Nested Try-Except)
-                    try:
-                        # Attempt 1: 90B Model (Stable & Powerful)
-                        response = groq_client.chat.completions.create(
-                            messages=[{
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": "Analyze this image for AI markers (warped textures, light mismatch, AI artifacts). Provide a verdict in Hinglish."},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
-                                ],
-                            }],
-                            model="llama-3.2-90b-vision-preview",
-                        )
-                    except Exception:
-                        # Attempt 2: Fallback to 11B Model
-                        response = groq_client.chat.completions.create(
-                            messages=[{
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": "Analyze this image for AI markers. Provide a verdict in Hinglish."},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
-                                ],
-                            }],
-                            model="llama-3.2-11b-vision-preview",
-                        )
+                    # 2. Hyper-Sentinel Fallback List (Stable models pehle, previews baad mein)
+                    candidate_models = [
+                        "llama-3.2-90b-vision", 
+                        "llama-3.2-11b-vision",
+                        "llama-3.2-90b-vision-preview",
+                        "llama-3.2-11b-vision-preview"
+                    ]
                     
-                    # Output report
-                    report_text = response.choices[0].message.content
-                    st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{report_text}</div>', unsafe_allow_html=True)
-                    st.balloons()
+                    resp = None
+                    last_error = ""
                     
+                    # Dimaag lagao: Har model ko loop mein try karo
+                    for model_candidate in candidate_models:
+                        try:
+                            resp = groq_client.chat.completions.create(
+                                messages=[{
+                                    "role": "user",
+                                    "content": [
+                                        {"type": "text", "text": "Analyze this image for AI generation markers. Verdict in Hinglish."},
+                                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
+                                    ],
+                                }],
+                                model=model_candidate,
+                            )
+                            if resp: break # Agar response mil gaya, loop khatam!
+                        except Exception as e:
+                            last_error = str(e)
+                            continue # Agar ye decommissioned hai, toh agla try karo
+                    
+                    # 3. Final Verdict Display
+                    if resp:
+                        st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{resp.choices[0].message.content}</div>', unsafe_allow_html=True)
+                        st.balloons()
+                    else:
+                        st.error(f"Sir, Groq ke saare models decommissioned dikha rahe hain. Last error: {last_error}")
+
                 except Exception as e:
-                    st.error(f"Sir, Groq system mein error aaya: {e}. Please check API keys or Quota.")
+                    st.error(f"Sir, system-level error: {e}")
+
