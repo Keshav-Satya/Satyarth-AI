@@ -39,7 +39,8 @@ text_llm = LLM(
 # vision_model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Naya Updated Code:
-vision_model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest")
+vision_model = genai.GenerativeModel('gemini-1.5-flash-8b')
+
 
 # 5. Search Tool
 @tool('search_tool')
@@ -133,6 +134,7 @@ with tab2:
                 
             st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{response.text}</div>', unsafe_allow_html=True)
             st.balloons()
+
 
 
 
