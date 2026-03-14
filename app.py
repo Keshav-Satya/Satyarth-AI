@@ -110,18 +110,27 @@ with tab1:
         else:
             st.warning("Sir, please ek topic ya news headline enter kijiye!")
 
-# --- TAB 2: Image Investigation (Live Camera + Upload) ---
+# --- TAB 2: Image Investigation (With Camera Toggle) ---
 with tab2:
-    st.info("Sir, yahan aap Live Photo khinch sakte hain ya File upload kar sakte hain! 🚀")
+    st.info("Sir, yahan aap photo upload karein ya Camera switch ka upyog karein! 🚀")
     
-    # Do options: Camera ya Upload
+    # 1. Camera Toggle Switch
+    cam_on = st.toggle("📸 Camera On/Off Karein", value=False, key="cam_toggle")
+
     col1, col2 = st.columns(2)
+    
     with col1:
         img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
+    
     with col2:
-        cam_file = st.camera_input("Ya phir ek Live Photo click karein 📸")
+        cam_file = None
+        # Agar switch 'On' hai, tabhi camera input dikhao
+        if cam_on:
+            cam_file = st.camera_input("Live Photo click karein")
+        else:
+            st.write("👈 Camera on karne ke liye switch ka upyog karein.")
 
-    # Jo bhi input mile (Upload ya Camera), usey use karein
+    # Input Priority (Upload ya Camera)
     final_img = img_file or cam_file
     
     if final_img:
@@ -140,26 +149,18 @@ with tab2:
                         
                         # Active model dhoondne ki logic
                         all_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-                        priority_list = [
-                            'models/gemini-1.5-flash',
-                            'models/gemini-1.5-flash-latest',
-                            'models/gemini-1.5-pro'
-                        ]
-                        
-                        working_model_name = next((p for p in priority_list if p in all_models), None)
+                        working_model_name = next((p for p in ['models/gemini-1.5-flash', 'models/gemini-1.5-pro'] if p in all_models), None)
 
                         if working_model_name:
                             model = genai.GenerativeModel(working_model_name)
-                            # PIL Image mein convert karein
                             img = Image.open(final_img)
-                            
                             prompt = "Analyze this image for AI generation markers. Verdict in Hinglish."
                             response = model.generate_content([prompt, img])
                             
                             st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis Report</h3>{response.text}</div>', unsafe_allow_html=True)
                             st.balloons()
                         else:
-                            st.error(f"Sir, vision model nahi mila. Available models: {all_models}")
+                            st.error("Sir, koi vision model active nahi mila.")
                             
                     except Exception as e:
-                        st.error(f"Sir, system crash error: {e}")
+                        st.error(f"Sir, detection mein issue aaya: {e}")
