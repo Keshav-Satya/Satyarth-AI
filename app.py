@@ -118,48 +118,53 @@ with tab2:
     if img_file:
         st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
         
-        if st.button("AI Detection Shuru Karein", key="img_btn"):
-            with st.spinner("🔍 Hyper-Sentinel is scanning across multiple models..."):
+       if st.button("AI Detection Shuru Karein", key="img_btn"):
+            with st.spinner("🔍 Samba-Vision Sentinel is scanning pixels..."):
                 try:
-                    # 1. Image encode karein
-                    base64_img = encode_image(img_file)
+                    # 1. Image ko base64 mein convert karein
+                    base64_image = encode_image(img_file)
                     
-                    # 2. Hyper-Sentinel Fallback List (Stable models pehle, previews baad mein)
-                    candidate_models = [
-                        "llama-3.2-90b-vision", 
-                        "llama-3.2-11b-vision",
-                        "llama-3.2-90b-vision-preview",
-                        "llama-3.2-11b-vision-preview"
-                    ]
+                    # 2. SambaNova Vision API Call (Using existing Key)
+                    import requests
+
+                    api_key = st.secrets["SAMBANOVA_API_KEY"]
+                    url = "https://api.sambanova.ai/v1/chat/completions"
                     
-                    resp = None
-                    last_error = ""
-                    
-                    # Dimaag lagao: Har model ko loop mein try karo
-                    for model_candidate in candidate_models:
-                        try:
-                            resp = groq_client.chat.completions.create(
-                                messages=[{
-                                    "role": "user",
-                                    "content": [
-                                        {"type": "text", "text": "Analyze this image for AI generation markers. Verdict in Hinglish."},
-                                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
-                                    ],
-                                }],
-                                model=model_candidate,
-                            )
-                            if resp: break # Agar response mil gaya, loop khatam!
-                        except Exception as e:
-                            last_error = str(e)
-                            continue # Agar ye decommissioned hai, toh agla try karo
-                    
-                    # 3. Final Verdict Display
-                    if resp:
-                        st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{resp.choices[0].message.content}</div>', unsafe_allow_html=True)
+                    headers = {
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json"
+                    }
+
+                    payload = {
+                        "model": "Llama-3.2-11B-Vision-Instruct",
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": "Analyze this image for AI generation markers like warped textures, lighting mismatch, or unnatural artifacts. Give a Forensic Verdict in Hinglish."},
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {
+                                            "url": f"data:image/jpeg;base64,{base64_image}"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "temperature": 0.1
+                    }
+
+                    response = requests.post(url, headers=headers, json=payload)
+                    res_json = response.json()
+
+                    if "choices" in res_json:
+                        report = res_json['choices'][0]['message']['content']
+                        st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{report}</div>', unsafe_allow_html=True)
                         st.balloons()
                     else:
-                        st.error(f"Sir, Groq ke saare models decommissioned dikha rahe hain. Last error: {last_error}")
+                        st.error(f"SambaNova Error: {res_json.get('error', 'Unknown Error')}")
 
                 except Exception as e:
-                    st.error(f"Sir, system-level error: {e}")
+                    st.error(f"Sir, Vision system mein issue aaya: {e}")
+
 
