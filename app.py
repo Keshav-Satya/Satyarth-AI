@@ -10,7 +10,7 @@ from PIL import Image
 # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Multimodal", page_icon="🕵️", layout="wide")
 
-# 2. Advanced Professional CSS
+# 2. Advanced Professional CSS (Cyber-Security Theme)
 st.markdown("""
     <style>
     .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
@@ -23,112 +23,4 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. API Keys Verification
-if "SAMBANOVA_API_KEY" not in st.secrets or "GROQ_API_KEY" not in st.secrets:
-    st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GROQ_API_KEY dono daaliye!")
-    st.stop()
-
-# 4. Initialize Clients
-text_llm = LLM(
-    model="openai/Meta-Llama-3.3-70B-Instruct",
-    base_url="https://api.sambanova.ai/v1",
-    api_key=st.secrets["SAMBANOVA_API_KEY"]
-)
-
-groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-
-def encode_image(image_file):
-    return base64.b64encode(image_file.getvalue()).decode('utf-8')
-
-# 5. Search Tool
-@tool('search_tool')
-def search_tool(query: str):
-    """Search internet for latest news facts."""
-    return DuckDuckGoSearchRun().run(query)[:2000]
-
-# --- Sidebar ---
-with st.sidebar:
-    st.markdown("# 🕵️ Satyarth-AI")
-    st.success("✅ System: Multimodal Active")
-    st.write("---")
-    st.write("Developed by **Team Future Flux**")
-
-# --- Main UI ---
-st.markdown('<h1 class="main-title">🕵️ Satyarth-AI</h1>', unsafe_allow_html=True)
-st.write("---")
-
-tab1, tab2 = st.tabs(["📝 Text Verification", "📷 Image Investigation"])
-
-# --- TAB 1: Text Investigation ---
-with tab1:
-    news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", key="text_in")
-    if st.button("Satyarth Analysis Shuru Karein", type="primary"):
-        if news_topic:
-            with st.status("🔍 Searching & Analyzing...", expanded=True) as status:
-                scout = Agent(
-                    role='Digital Detective',
-                    goal=f'Verify facts for: {news_topic}',
-                    backstory="Aap ek expert fact-checker hain.",
-                    tools=[search_tool],
-                    llm=text_llm,
-                    verbose=True,
-                    allow_delegation=False
-                )
-                analyst = Agent(
-                    role='Forensic Analyst',
-                    goal='Final Verdict in Hinglish',
-                    backstory="Aap ek senior investigative journalist hain.",
-                    llm=text_llm,
-                    verbose=True
-                )
-                crew = Crew(
-                    agents=[scout, analyst],
-                    tasks=[
-                        Task(description=f"Find facts for: {news_topic}", agent=scout, expected_output="Facts"),
-                        Task(description="Report in Hinglish", agent=analyst, expected_output="Verdict")
-                    ],
-                    process=Process.sequential
-                )
-                result = crew.kickoff()
-                status.update(label="Investigation Complete! ✅", state="complete")
-            st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
-            st.balloons()
-
-# --- TAB 2: Image Investigation (FIXED) ---
-with tab2:
-    st.info("Sir, Llama 3.2 90B Vision use ho raha hai jo sabse powerful hai! 🚀")
-    img_file = st.file_uploader("Photo Upload Karein", type=['jpg', 'png', 'jpeg'])
-    if img_file:
-        st.image(img_file, caption="Investigation ke liye image taiyar hai.", width=400)
-        if st.button("AI Detection Shuru Karein", key="img_btn"):
-            with st.spinner("🔍 Pixels analyze ho rahe hain..."):
-                try:
-                    base64_img = encode_image(img_file)
-                    # Try 90B first, then 11B as backup
-                    try:
-                        resp = groq_client.chat.completions.create(
-                            messages=[{
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": "Analyze this image for AI generation markers. Verdict in Hinglish."},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
-                                ],
-                            }],
-                            model="llama-3.2-90b-vision-preview",
-                        )
-                    except:
-                        resp = groq_client.chat.completions.create(
-                            messages=[{
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": "Analyze this image for AI generation markers. Verdict in Hinglish."},
-                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
-                                ],
-                            }],
-                            model="llama-3.2-11b-vision-preview",
-                        )
-                    
-                    st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis</h3>{resp.choices[0].message.content}</div>', unsafe_allow_html=True)
-                    st.balloons()
-                except Exception as e:
-                    st.error(f"Sir, error aaya: {e}")
+# 3
