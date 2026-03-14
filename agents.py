@@ -4,50 +4,39 @@ from crewai import Agent, LLM
 from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
 
-# # 1. LLM Setup (SambaNova - Llama 3.3 70B)
-# Sir, ye model reasoning mein best hai aur local context ko achhe se samajhta hai.
-text_llm = LLM(
+# 1. SambaNova LLM Setup - No more 404/401 Errors
+# Sir, hum Llama 3.1 70B use kar rahe hain jo Gemini se fast aur stable hai
+my_llm = LLM(
     model="openai/meta-llama/Llama-3.3-70B-Instruct",
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"],
     temperature=0.1
 )
 
-# # 2. Optimized Search Tool (Token Saving Mode)
+# 2. Search Tool
 @tool('search_tool')
 def search_tool(query: str):
-    """Search internet for official govt, regional news, and local vendor reports."""
+    """Search the internet for news, facts, and verification information."""
     search = DuckDuckGoSearchRun()
-    # Sir, tokens bachane ke liye 200 characters ki limit barkarar rakhi hai.
-    return search.run(query)[:200]
+    return search.run(query)[:2000]
 
-# # 3. Scout Agent: Local Ground Reality Scout
-# Is agent ka kaam recording mein discuss kiye gaye local networks ko simulate karna hai.
+# 3. Scout Agent - Sachai dhundne wala detective
 scout_agent = Agent(
-    role='Local Ground Reality Scout',
-    goal='Global news ke bajaye local reality par focus karna aur regional entities (Vendors/Official Portals) se sachai nikaalna.',
-    backstory="""Aap ek investigative journalist hain jo local networks aur vendors (jaise Verka owners/local shops) 
-    ki ground reports ko analyze karte hain. Aap jaante hain ki global news asan hai, par local 1-2 websites par 
-    bhari fake news ko kaise pakadna hai. Aap har fact ke saath uska source link zaroor note karte hain.""",
+    role='Digital Information Scout',
+    goal='Viral news ki sachai verify karna aur internet se credible sources dhundna.',
+    backstory="Aap ek expert digital detective hain jo fact-check karne aur afwahon ka parda-faash karne mein mahir hain.",
     tools=[search_tool],
-    llm=text_llm,
+    llm=my_llm,
     verbose=True,
     allow_delegation=False
 )
 
-# # 4. Analyst Agent: Source Transparency & Credibility Officer
-# Ye agent har source ko points dega aur user ko batayega ki trust kyun karein.
+# 4. Analyst Agent - Report banaye wala journalist
 analyst_agent = Agent(
-    role='Source Transparency Analyst',
-    goal='Har source ki credibility score calculate karna aur final report mein unhe transparently dikhana.',
-    backstory="""Aap ek senior data forensic officer hain. Aap niche diye gaye formula se trust score calculate karte hain:
-    - Government/Official Sources: 50% Weightage
-    - Mainstream Media: 30% Weightage
-    - Local Verified Reports: 15% Weightage
-    - Social Media/Unknown: 5% Weightage
-    
-    Aap final report mein 'Sources Used' ki ek list dete hain aur batate hain ki kyun koi local news real ya fake hai.""",
-    llm=text_llm,
+    role='News Verifier Analyst',
+    goal='Scout Agent ki report ko analyze karke final forensic verdict dena.',
+    backstory="Aap ek senior investigative journalist hain jo sources ki credibility check karke final report likhte hain.",
+    llm=my_llm,
     verbose=True,
     allow_delegation=True
 )
