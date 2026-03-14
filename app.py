@@ -10,14 +10,14 @@ from PIL import Image
 # # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Cyber-Security UI (Stable Hinglish Edition)
+# # 2. Professional Cyber UI
 st.markdown("""
     <style>
     .stApp { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f1f5f9; }
     [data-testid="stWidgetLabel"] p { font-size: 1.25rem !important; font-weight: 700 !important; color: #38bdf8 !important; }
     .report-card {
-        background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(15px);
-        border-radius: 20px; padding: 25px; border: 1px solid rgba(56, 189, 248, 0.3);
+        background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(15px);
+        border-radius: 20px; padding: 25px; border: 1px solid rgba(56, 189, 248, 0.4);
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); margin-top: 20px; color: white;
     }
     .main-title {
@@ -37,7 +37,7 @@ if "SAMBANOVA_API_KEY" not in st.secrets or "GOOGLE_API_KEY" not in st.secrets:
     st.error("Sir, please Secrets mein Keys check karein!")
     st.stop()
 
-# # 4. Engine Setup (Switched to 11B for higher rate limits)
+# # 4. Engine Setup (Llama 3.2 11B for Stability)
 text_llm = LLM(
     model="sambanova/Llama-3.2-11B-Vision-Instruct", 
     base_url="https://api.sambanova.ai/v1",
@@ -47,16 +47,16 @@ text_llm = LLM(
 
 @tool('search_tool')
 def search_tool(query: str):
-    """Balanced search for news facts."""
+    """Deep search for news verification."""
     search = DuckDuckGoSearchRun()
-    # 350 characters balance hai tokens aur analysis ke liye
-    return search.run(query)[:350]
+    # 400 chars for precise factual extraction
+    return search.run(query)[:400]
 
 # # 5. Sidebar
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #38bdf8;'>🛡️ Satyarth-AI</h2>", unsafe_allow_html=True)
-    st.metric("Mode", "Forensic Stability Active ✅")
-    st.info("📡 SambaNova: Stable Mode")
+    st.metric("Mode", "Professional Forensic 📍")
+    st.info("📡 SambaNova: Connected")
     st.info("💠 Gemini Vision: Ready")
     st.write("---")
     st.markdown("Developed by **Team Future Flux**")
@@ -65,9 +65,9 @@ with st.sidebar:
 st.markdown('<h1 class="main-title">SATYARTH-AI</h1>', unsafe_allow_html=True)
 st.write("---")
 
-tab1, tab2 = st.tabs(["🔍 Text Verification", "🔬 Image Investigation"])
+tab1, tab2 = st.tabs(["🔍 News Verification", "🔬 Image Investigation"])
 
-# --- TAB 1: Text ---
+# --- TAB 1: Text Verification ---
 with tab1:
     col1, col2 = st.columns([3, 1])
     with col1: news_topic = st.text_input("News Headline Daalein 👇")
@@ -75,26 +75,32 @@ with tab1:
 
     if st.button("🚀 START DEEP FORENSIC ANALYSIS"):
         if news_topic:
-            with st.status("🕵️ Investigating Evidence...", expanded=True) as status:
-                # Optimized Agents: Strictly Hinglish & Detailed Analysis
+            with st.status("🕵️ Extracting Live Evidence...", expanded=True) as status:
+                # Optimized Agents: Strictly Professional & Fact-Oriented
                 scout = Agent(
-                    role='Forensic Scout',
-                    goal=f'Verify {news_topic} in {location} context. Find official ICC or Govt records.',
-                    backstory="Aap ek expert investigator hain. Specific dates aur results verify karein.",
+                    role='Forensic Fact Researcher',
+                    goal=f'Verify {news_topic} using live data. Today is March 15, 2026. Check ICC T20 World Cup 2026 recent results.',
+                    backstory="""Aap ek unbiased fact researcher hain. Aapka kaam hai dates, locations aur 
+                    official statements ko cross-check karna. Aap kabhi bhi slang ya unprofessional 
+                    language use nahi karte.""",
                     tools=[search_tool], llm=text_llm, verbose=True
                 )
                 analyst = Agent(
-                    role='News Analyst',
-                    goal='Create a detailed analysis report in HINGLISH. No scorecards.',
-                    backstory="Aap results ko Hinglish mein explain karte hain. Evidence aur clear verdict dein.",
+                    role='Lead Forensic Verifier',
+                    goal='Create a professional analysis report in HINGLISH based on extracted facts. No scorecards.',
+                    backstory="""Aap ek senior forensic analyst hain. Aapka report format: 
+                    1. Verdict (Real/Fake) 
+                    2. Key Evidence (Search results se factual details) 
+                    3. Conclusion. 
+                    Aap hamesha respectful aur professional tone maintain karte hain.""",
                     llm=text_llm, verbose=True
                 )
 
                 crew = Crew(
                     agents=[scout, analyst],
                     tasks=[
-                        Task(description=f"Check matches and records for: {news_topic} in {location}.", agent=scout, expected_output="Facts and links."),
-                        Task(description="Write detailed Hinglish report with clear verdict and sources. Do NOT use any scores.", agent=analyst, expected_output="Detailed Hinglish Report.")
+                        Task(description=f"Find current status of: {news_topic}. Compare with March 15, 2026 date.", agent=scout, expected_output="Specific match results and dates."),
+                        Task(description="Synthesize into a professional Hinglish report. Strictly no slang or informal headings. Provide sources.", agent=analyst, expected_output="Professional Hinglish Report.")
                     ],
                     process=Process.sequential
                 )
@@ -102,23 +108,23 @@ with tab1:
                 try:
                     result = crew.kickoff()
                     status.update(label="Analysis Complete! ✅", state="complete")
-                    st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="report-card"><h3>📜 Forensic Analysis Report</h3>{result.raw}</div>', unsafe_allow_html=True)
                     
-                    if any(x in result.raw.lower() for x in ["real", "true", "sahi", "authentic"]): st.balloons()
-                    elif any(x in result.raw.lower() for x in ["fake", "false", "galat", "fraud"]): st.snow()
+                    if any(x in result.raw.lower() for x in ["real", "true", "sahi", "authentic", "finalist"]): st.balloons()
+                    elif any(x in result.raw.lower() for x in ["fake", "false", "galat", "misleading"]): st.snow()
                 except Exception as e:
-                    st.error("Sir, SambaNova ki limit hit ho gayi hai. 60 seconds baad phir se try karein.")
+                    st.error("Rate limit hit. Please wait 60 seconds.")
             
             st.write("---")
             if st.button("👥 Request Human Expert Verification"):
-                st.info(f"Sir, humne {location} ke verified experts ko request bhej di hai! 📡")
+                st.info(f"Sir, humne local ICC experts aur vendors ko alert bhej diya hai! 📡")
         else:
             st.warning("Sir, please headline enter karein!")
 
-# --- TAB 2: Image ---
+# --- TAB 2: Image Investigation ---
 with tab2:
     st.markdown("### 🔬 Image Forensic Module")
-    cam_toggle = st.toggle("🎥 Activate Live Camera", value=False)
+    cam_toggle = st.toggle("🎥 Activate Live Camera Feed", value=False)
     c1, c2 = st.columns(2)
     img_cam = None 
     with c1: img_file = st.file_uploader("Upload Image", type=['jpg','png','jpeg'])
@@ -130,7 +136,7 @@ with tab2:
     if final_img is not None:
         st.image(final_img, caption="Forensic Scan Ready.", width=500)
         if st.button("🔍 RUN PIXEL ANALYSIS"):
-            with st.spinner("Analyzing..."):
+            with st.spinner("Analyzing AI markers..."):
                 try:
                     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
                     model = genai.GenerativeModel('gemini-1.5-flash')
