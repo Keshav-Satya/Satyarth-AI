@@ -168,4 +168,32 @@ with tab1:
     if "final_report" in st.session_state:
         st.markdown(f'<div class="report-card"><h3>📜 Forensic Verification Report</h3>{st.session_state.final_report}</div>', unsafe_allow_html=True)
         st.write("---")
-        st.markdown('<div class="red
+        st.markdown('<div class="red-btn">', unsafe_allow_html=True)
+        if st.button("👥 Request Human Verification"):
+            st.info("you will be informed when we receive reply")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# --- TAB 2: IMAGE ---
+with tab2:
+    st.markdown("### 🔬 Image Forensic Module")
+    cam_on = st.toggle("🎥 Activate Live Camera Feed", value=False)
+    up_c, cam_c = st.columns(2)
+    img_cam = None 
+    with up_c: img_up = st.file_uploader("Upload Image", type=['jpg','png','jpeg'])
+    with cam_c: 
+        if cam_on: img_cam = st.camera_input("Take Photo")
+        else: st.info("Camera is OFF.")
+
+    final_img = img_up if img_up is not None else img_cam
+    if final_img is not None:
+        st.image(final_img, caption="Forensic Scan Ready.", width=500)
+        st.markdown('<div class="main-btn">', unsafe_allow_html=True)
+        if st.button("🔍 RUN PIXEL ANALYSIS", key="img_btn"):
+            with st.spinner("Analyzing AI markers..."):
+                try:
+                    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    response = model.generate_content(["Analyze image for AI artifacts. Hinglish Verdict.", Image.open(final_img)])
+                    st.markdown(f'<div class="report-card"><h3>🔬 Verdict</h3>{response.text}</div>', unsafe_allow_html=True)
+                except Exception as e: st.error(f"Error: {e}")
+        st.markdown('</div>', unsafe_allow_html=True)
