@@ -110,7 +110,7 @@ with tab1:
         else:
             st.warning("Sir, please ek topic ya news headline enter kijiye!")
 
-# --- TAB 2: Image Investigation (SambaNova Vision) ---
+# --- TAB 2: Image Investigation (SambaNova Vision Robust) ---
 with tab2:
     st.info("Sir, yahan hum SambaNova Llama 3.2 Vision use kar rahe hain! 🚀")
     img_file = st.file_uploader("Photo Upload Karein", type=['jpg', 'png', 'jpeg'])
@@ -134,6 +134,7 @@ with tab2:
                         "Content-Type": "application/json"
                     }
 
+                    # Dimaag lagao: Model name aur format check karein
                     payload = {
                         "model": "Llama-3.2-11B-Vision-Instruct",
                         "messages": [
@@ -154,14 +155,22 @@ with tab2:
                     }
 
                     response = requests.post(url, headers=headers, json=payload)
-                    res_json = response.json()
-
-                    if "choices" in res_json:
-                        report = res_json['choices'][0]['message']['content']
-                        st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{report}</div>', unsafe_allow_html=True)
-                        st.balloons()
+                    
+                    # Agar server JSON nahi bhej raha, toh raw text dekhein
+                    if response.status_code != 200:
+                        st.error(f"⚠️ SambaNova Server Error ({response.status_code}): {response.text}")
                     else:
-                        st.error(f"SambaNova Error: {res_json.get('error', 'Unknown Error')}")
+                        try:
+                            res_json = response.json()
+                            if "choices" in res_json:
+                                report = res_json['choices'][0]['message']['content']
+                                st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{report}</div>', unsafe_allow_html=True)
+                                st.balloons()
+                            else:
+                                st.error(f"SambaNova API Issue: {res_json}")
+                        except Exception:
+                            st.error(f"Raw Response (Not JSON): {response.text}")
 
                 except Exception as e:
                     st.error(f"Sir, Vision system mein issue aaya: {e}")
+
