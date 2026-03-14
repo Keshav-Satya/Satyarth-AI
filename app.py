@@ -172,7 +172,14 @@ with tab1:
             with st.status("🕵️ Investigating live sources...", expanded=True) as status:
                 scout = Agent(role='Scout', goal=f'Verify {news_topic} in {region}.', backstory="Detective.", tools=[search_tool], llm=text_llm)
                 analyst = Agent(role='Verifier', goal='Write professional Hinglish report.', backstory="Lead Analyst.", llm=text_llm)
-                crew = Crew(agents=[scout, analyst], tasks=[Task(description=f"Check {news_topic}", agent=scout, expected_output="Facts"), Task(description="Report", agent=analyst, expected_output="Report")], process=Process.sequential)
+               # Line 175 ko isse replace karein:
+crew = Crew(
+    agents=[scout, analyst], 
+    tasks=[Task(description=f"Check {news_topic}", agent=scout, expected_output="Facts"), 
+           Task(description="Report", agent=analyst, expected_output="Report")], 
+    process=Process.sequential,
+    max_rpm=1  # 👈 Sir, ye extra line zaroor add karein
+)
                 result = crew.kickoff()
                 st.session_state.final_report = result.raw
                 status.update(label="Analysis Complete! ✅", state="complete")
@@ -212,3 +219,4 @@ with tab2:
                     st.markdown(f'<div class="report-card"><h3>🔬 Verdict</h3>{response.text}</div>', unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error: {e}")
         st.markdown('</div>', unsafe_allow_html=True)
+
