@@ -10,100 +10,104 @@ import google.generativeai as genai
 # # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Advanced Cyber-Forensic UI Styling
+# # 2. Improved High-Contrast Cyber CSS
 st.markdown("""
     <style>
     /* Global Background */
-    .stApp { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f1f5f9; }
+    .stApp { 
+        background: linear-gradient(135deg, #020617 0%, #0f172a 100%); 
+        color: #f8fafc; 
+    }
     
-    /* Neon Sidebar Dashboard */
+    /* Neon Sidebar - Readability Fix */
     [data-testid="stSidebar"] {
-        background-color: rgba(15, 23, 42, 0.95) !important;
-        border-right: 2px solid #38bdf8;
+        background-color: #020617 !important;
+        border-right: 2px solid #0ea5e9;
     }
     .metric-container {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(14, 165, 233, 0.15);
         padding: 15px; border-radius: 12px;
-        border-left: 4px solid #38bdf8; margin-bottom: 10px;
+        border: 1px solid #38bdf8; margin-bottom: 12px;
     }
+    .metric-container b { color: #f8fafc !important; font-size: 1.1rem; }
+    .metric-container small { color: #38bdf8 !important; font-weight: bold; }
     
-    /* Tech Pulse Animation */
-    .pulse {
-        height: 10px; width: 10px; background-color: #38bdf8;
-        border-radius: 50%; display: inline-block;
-        box-shadow: 0 0 0 rgba(56, 189, 248, 0.4);
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
-    }
-
-    /* Input Labels Readability */
+    /* Input Labels - High Contrast Fix */
     [data-testid="stWidgetLabel"] p {
-        font-size: 1.25rem !important; font-weight: 700 !important;
-        color: #38bdf8 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        font-size: 1.3rem !important; 
+        font-weight: 800 !important; 
+        color: #f8fafc !important; /* Pure White for maximum visibility */
+        background: rgba(14, 165, 233, 0.2);
+        padding: 5px 10px;
+        border-radius: 5px;
+        display: inline-block;
+        margin-bottom: 10px !important;
     }
 
-    /* Main UI Polish */
+    /* Main Title Polish */
     .main-title {
         background: linear-gradient(to right, #38bdf8, #818cf8);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        font-size: 4.2rem; font-weight: 900; text-align: center;
-        text-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+        font-size: 4.5rem; font-weight: 900; text-align: center;
+        filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.4));
     }
+
+    /* Forensic Report Card - Text Readability */
     .report-card {
-        background-color: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
-        padding: 30px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3);
-        color: #f1f5f9; margin-top: 20px;
+        background-color: rgba(255, 255, 255, 0.1); 
+        backdrop-filter: blur(20px);
+        padding: 30px; border-radius: 20px; 
+        border: 2px solid #38bdf8;
+        color: #ffffff !important;
+        line-height: 1.6;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
+    .report-card h3 { color: #38bdf8 !important; font-weight: 900; }
+
+    /* Custom Buttons */
     .stButton>button {
-        background: linear-gradient(45deg, #0284c7, #4f46e5); color: white;
-        padding: 14px 30px; border-radius: 12px; font-weight: 700; width: 100%; transition: 0.3s;
+        background: linear-gradient(45deg, #0ea5e9, #6366f1); 
+        color: white; padding: 16px 30px; border-radius: 12px; 
+        font-weight: 800; font-size: 1.1rem; width: 100%; 
+        border: none; transition: 0.3s;
     }
-    .stButton>button:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(56, 189, 248, 0.5); }
+    .stButton>button:hover { 
+        transform: scale(1.02); 
+        box-shadow: 0 0 40px rgba(56, 189, 248, 0.6); 
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# # 3. API Keys Verification
-if "SAMBANOVA_API_KEY" not in st.secrets or "GOOGLE_API_KEY" not in st.secrets:
-    st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GOOGLE_API_KEY check karein!")
-    st.stop()
-
-# # 4. Models Initialization
+# # 3. LLM Setup
 text_llm = LLM(
     model="sambanova/Meta-Llama-3.3-70B-Instruct", 
     base_url="https://api.sambanova.ai/v1",
-    api_key=st.secrets["SAMBANOVA_API_KEY"],
-    temperature=0.1
+    api_key=st.secrets["SAMBANOVA_API_KEY"]
 )
 
 @tool('search_tool')
 def search_tool(query: str):
-    """Search internet for news facts with token saving."""
+    """Deep forensic search."""
     search = DuckDuckGoSearchRun()
-    search_result = search.run(query)
-    return search_result[:400]
+    return search.run(query)[:500]
 
-# # 5. Pro Tech Sidebar Dashboard
+# # 4. Pro Tech Sidebar Dashboard
 with st.sidebar:
-    st.markdown("## 🛡️ Satyarth Engine")
-    st.markdown('<p><span class="pulse"></span> System Status: Online</p>', unsafe_allow_html=True)
-    st.write("---")
+    st.markdown("<h2 style='color:#38bdf8;'>🛡️ Satyarth Control</h2>", unsafe_allow_html=True)
+    st.markdown("---")
     
-    st.markdown("### 📊 Live Metrics")
-    st.markdown('<div class="metric-container"><b>SambaNova:</b> Active 🟢<br><small>Latency: 42ms</small></div>', unsafe_allow_html=True)
-    st.markdown('<div class="metric-container"><b>Forensic Agents:</b> 2 Running<br><small>Mode: Hyper-Local</small></div>', unsafe_allow_html=True)
-    st.markdown('<div class="metric-container"><b>Uptime:</b> Stable</div>', unsafe_allow_html=True)
+    st.markdown("### 📊 System Health")
+    st.markdown('<div class="metric-container"><b>SambaNova Engine</b><br><small>STATUS: ACTIVE 🟢</small></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-container"><b>Forensic Agents</b><br><small>MODE: HYPER-LOCAL 📍</small></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-container"><b>Memory Buffer</b><br><small>USAGE: OPTIMAL ✅</small></div>', unsafe_allow_html=True)
     
     st.write("---")
-    st.markdown("Developed by **Team Future Flux**")
+    st.write("Developed by **Team Future Flux**")
     st.caption("NIT Hamirpur | Electrothon 8.0")
 
-# # 6. Header
+# # 5. Main UI
 st.markdown('<h1 class="main-title">SATYARTH-AI</h1>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #94a3b8;'>Hyper-Local Disinformation Detection & Image Forensic Engine</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 1.2rem;'>Advanced Automated Disinformation Detection & Image Forensic Engine</p>", unsafe_allow_html=True)
 st.write("---")
 
 tab1, tab2 = st.tabs(["🔍 Text Verification", "🔬 Image Investigation"])
@@ -116,27 +120,26 @@ with tab1:
     with col_loc:
         region = st.text_input("Region (District and State) 📍", placeholder="e.g. Hamirpur, Himachal Pradesh")
 
-    if st.button("🚀 Start Deep Satyarth Analysis", key="text_btn"):
+    if st.button("🚀 START DEEP FORENSIC ANALYSIS", key="text_btn"):
         if news_topic:
-            with st.status(f"🕵️ Investigating {news_topic} in {region}...", expanded=True) as status:
-                # Agents definition
+            with st.status(f"🕵️ System scanning {region} portals...", expanded=True) as status:
                 scout = Agent(
                     role='Local Data Scout',
-                    goal=f'Verify {news_topic} in {region}. Check district level news portals. Today is March 15, 2026.',
-                    backstory="Aap ek expert digital detective hain jo specific regions ki news verify karte hain.",
+                    goal=f'Verify {news_topic} in {region}. Strictly use district level reports.',
+                    backstory="Expert forensic detective.",
                     tools=[search_tool], llm=text_llm, verbose=True
                 )
                 analyst = Agent(
                     role='Lead Forensic Verifier',
-                    goal='Write a detailed Hinglish verdict report. No scorecards.',
-                    backstory="Aap results ko professional Hinglish mein verify karte hain.",
+                    goal='Write a Hinglish verdict report. No scorecards.',
+                    backstory="Senior investigative journalist.",
                     llm=text_llm, verbose=True
                 )
                 crew = Crew(
                     agents=[scout, analyst],
                     tasks=[
-                        Task(description=f"Check {news_topic} specifically in {region} context.", agent=scout, expected_output="Local facts & links."),
-                        Task(description="Synthesize into a professional Hinglish report with clear verdict.", agent=analyst, expected_output="Final Report.")
+                        Task(description=f"Verify {news_topic} in {region}.", agent=scout, expected_output="Facts."),
+                        Task(description="Write Hinglish report.", agent=analyst, expected_output="Report.")
                     ],
                     process=Process.sequential
                 )
@@ -145,14 +148,12 @@ with tab1:
                 status.update(label="Analysis Complete! ✅", state="complete")
             st.balloons()
         else:
-            st.warning("Sir, please news enter kijiye!")
+            st.warning("Sir, news enter kijiye!")
 
-    # Show report and Human Verification button only if analysis is done
     if "final_report" in st.session_state:
-        st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{st.session_state.final_report}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="report-card"><h3>📜 Forensic Verification Report</h3>{st.session_state.final_report}</div>', unsafe_allow_html=True)
         st.write("---")
-        st.markdown("### 👥 Human Intelligence Module")
-        if st.button("Request Human Verification"):
+        if st.button("👥 Request Human Verification"):
             st.info("you will be informed when we receive reply")
 
 # --- TAB 2: Image Investigation ---
@@ -164,12 +165,9 @@ with tab2:
     img_cam = None 
     with c1: img_file = st.file_uploader("Upload Image", type=['jpg','png','jpeg'])
     with c2: 
-        if cam_toggle:
-            img_cam = st.camera_input("Take Photo")
-        else:
-            st.info("Camera is OFF.")
+        if cam_toggle: img_cam = st.camera_input("Take Photo")
+        else: st.info("Camera is OFF.")
 
-    # Fix logic: only consider if it's a valid file object
     final_img = img_file if img_file is not None else img_cam
     
     if final_img is not None:
