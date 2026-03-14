@@ -68,32 +68,35 @@ tab1, tab2 = st.tabs(["📝 Text Verification", "📷 Image Investigation"])
 # --- TAB 1: Text Investigation (CrewAI Power) ---
 with tab1:
     news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", placeholder="e.g. Is viral NASA photo real?")
-    # Line 70 ke niche ye line add karein
- location = st.text_input("Location (e.g. Mandi, Hamirpur, Himachal ya Global)", value="Global")
+    # Ye line ab ekdum news_topic ke neeche aligned hai
+    location = st.text_input("Location (e.g. Mandi, Hamirpur, Himachal ya Global)", value="Global")
+    
     if st.button("Satyarth Analysis Shuru Karein", type="primary"):
         if news_topic:
             with st.status("🔍 Searching & Analyzing Data...", expanded=True) as status:
                 st.write("🌐 Initializing Forensic Agents...")
-                
-               # Agent 1: Regional Scout (Line 78 onwards)
-        scout = Agent(
-            role='Regional Information Scout',
-            goal=f'Verify facts for: {news_topic} in {location} context and collect source website links.',
-            backstory=f"Aap ek expert detective hain jo {location} ke local portals (jaise Amar Ujala, Tribune) aur official records se sachai nikaalte hain. Aapko har fact ke saath uska URL link bhi collect karna hai.",
-            tools=[search_tool],
-            llm=text_llm,
-            verbose=True,
-            allow_delegation=False
-        )
 
-        # Agent 2: Forensic Analyst (Line 88 onwards)
-        analyst = Agent(
-            role='Forensic News Verifier',
-            goal='Create a final forensic report in Hinglish. MUST include a "Sources Used" section with links at the end.',
-            backstory="Aap ek senior investigative journalist hain. Aap sources ki credibility check karte hain aur final verdict ke saath un websites ke links dete hain jahan se information li gayi hai.",
-            llm=text_llm,
-            verbose=True
-        )
+                # Agent 1: Regional Scout
+                scout = Agent(
+                    role='Regional Information Scout',
+                    goal=f'Verify facts for: {news_topic} in {location} context and collect source website links.',
+                    backstory=f"Aap ek expert detective hain jo {location} ke local portals aur official records se sachai nikaalte hain. Har fact ke saath URL link collect karein.",
+                    tools=[search_tool],
+                    llm=text_llm,
+                    verbose=True,
+                    allow_delegation=False
+                )
+
+                # Agent 2: Forensic Analyst
+                analyst = Agent(
+                    role='Forensic News Verifier',
+                    goal='Create a final forensic report in Hinglish. MUST include a "Sources Used" section with links at the end.',
+                    backstory="Aap ek investigative journalist hain jo final verdict ke saath un websites ke links dete hain jahan se information li gayi hai.",
+                    llm=text_llm,
+                    verbose=True
+                )
+                
+                # ... (Baaki ka crew logic yahan aayega) ...
                 
                 # Orchestrate the Crew
                 crew = Crew(
@@ -167,5 +170,6 @@ with tab2:
                             
                     except Exception as e:
                         st.error(f"Sir, detection mein issue aaya: {e}")
+
 
 
