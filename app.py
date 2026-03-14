@@ -118,49 +118,51 @@ with tab2:
     if img_file:
         st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
         
-        if st.button("AI Detection Shuru Karein", key="img_btn"):
+       if st.button("AI Detection Shuru Karein", key="img_btn"):
             if "GOOGLE_API_KEY" not in st.secrets:
                 st.error("Sir, please Secrets mein GOOGLE_API_KEY daaliye!")
             else:
-                with st.spinner("🔍 Gemini Forensic Engine is scanning pixels..."):
+                with st.spinner("🔍 Forensic Sentinel is searching for an active model..."):
                     try:
                         import google.generativeai as genai
                         from PIL import Image
                         
-                        # Configuration
                         genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
                         
-                        # Stable Model: gemini-1.5-flash (No latest suffix)
-                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        # 1. Dimaag Lagao: Pehle available models ki list nikaalo
+                        all_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
                         
-                        # Convert uploaded file to PIL Image
-                        img = Image.open(img_file)
+                        # 2. Priority List (Inmein se jo bhi mil jaye)
+                        priority_list = [
+                            'models/gemini-1.5-flash',
+                            'models/gemini-1.5-flash-latest',
+                            'models/gemini-1.5-pro',
+                            'models/gemini-1.5-flash-8b'
+                        ]
                         
-                        # Professional Forensic Prompt
-                        prompt = """
-                        Analyze this image for AI generation markers (warped textures, unnatural limbs, 
-                        lighting inconsistencies, or AI artifacts). Give a final verdict in Hinglish 
-                        stating if the image is 'Real' or 'AI Generated' with reasons.
-                        """
+                        working_model_name = None
+                        for p_model in priority_list:
+                            if p_model in all_models:
+                                working_model_name = p_model
+                                break
                         
-                        # Generation
-                        response = model.generate_content([prompt, img])
-                        
-                        # Output
-                        if response.text:
-                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{response.text}</div>', unsafe_allow_html=True)
+                        if not working_model_name:
+                            # Agar list mein se koi nahi mila, toh jo pehla vision model ho use le lo
+                            vision_models = [m for m in all_models if 'flash' in m or 'pro' in m]
+                            working_model_name = vision_models[0] if vision_models else None
+
+                        if working_model_name:
+                            st.write(f"✅ Active Model Found: `{working_model_name}`")
+                            model = genai.GenerativeModel(working_model_name)
+                            img = Image.open(img_file)
+                            
+                            prompt = "Analyze this image for AI generation markers (textures, lighting). Verdict in Hinglish."
+                            response = model.generate_content([prompt, img])
+                            
+                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis</h3>{response.text}</div>', unsafe_allow_html=True)
                             st.balloons()
                         else:
-                            st.error("Sir, model ne koi output nahi diya. Dubara try karein.")
+                            st.error(f"Sir, aapki key ke liye koi vision model nahi mila. Available models: {all_models}")
                             
                     except Exception as e:
-                        # Fail-safe: Agar Flash fail ho, toh Flash-8B try karein (Backup)
-                        try:
-                            st.write("🔄 Trying Backup Model (Flash-8B)...")
-                            model_backup = genai.GenerativeModel('gemini-1.5-flash-8b')
-                            response = model_backup.generate_content([prompt, img])
-                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis (Backup)</h3>{response.text}</div>', unsafe_allow_html=True)
-                            st.balloons()
-                        except Exception as e2:
-                            st.error(f"Sir, Gemini ke saare models down hain: {e2}")
-
+                        st.error(f"Sir, system crash error: {e}")
