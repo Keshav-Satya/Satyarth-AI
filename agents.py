@@ -1,24 +1,53 @@
-# --- agents.py ---
+import os
+import streamlit as st
+from crewai import Agent, LLM
+from crewai.tools import tool
+from langchain_community.tools import DuckDuckGoSearchRun
 
-# Scout Agent: Ab ye local sources ko bhi dhoondhega
-scout_agent = Agent(
-    role='Hyper-Local News Investigator',
-    goal='Global aur Local news ki sachai verify karna aur un websites ke links collect karna jahan ye news publish hui hai.',
-    backstory="""Aap ek investigative journalist hain jo regional portals (like Amar Ujala, 
-    Divya Himachal, Tribune) aur local administrative notices ko scan karte hain. 
-    Aapko har fact ke saath uski website ka URL bhi note karna hai.""",
-    tools=[search_tool],
-    llm=my_llm,
-    verbose=True
+# 1. LLM Setup (SambaNova - Llama 3.3 70B)
+# Sir, hum 70B use kar rahe hain jo reasoning mein best hai
+text_llm = LLM(
+    model="openai/meta-llama/Llama-3.3-70B-Instruct",
+    base_url="https://api.sambanova.ai/v1",
+    api_key=st.secrets["SAMBANOVA_API_KEY"],
+    temperature=0.1
 )
 
-# Analyst Agent: Ye final report mein 'Sources' ka section banayega
+# 2. Optimized Search Tool (Token Saving Mode)
+@tool('search_tool')
+def search_tool(query: str):
+    """Search internet for official govt and regional news facts."""
+    search = DuckDuckGoSearchRun()
+    # Sir, humne 200 characters ki limit lagayi hai taaki rate limit na aaye
+    return search.run(query)[:200]
+
+# 3. Scout Agent: Government & Local Data Investigator
+scout_agent = Agent(
+    role='Lead Forensic Investigator (Official & Regional Focus)',
+    goal='Verify news by strictly prioritizing Government portals (.gov, .nic, PIB) and local news sources.',
+    backstory="""Aap ek digital detective hain. Aapka kaam hai sabse pehle official 
+    government websites (like pib.gov.in) aur regional newspapers (like Amar Ujala, 
+    Tribune) ko scan karna. Aap har fact ke saath uski website ka URL note karte hain 
+    taaki use 'Source' ki tarah dikhaya ja sake.""",
+    tools=[search_tool],
+    llm=text_llm,
+    verbose=True,
+    allow_delegation=False
+)
+
+# 4. Analyst Agent: Weighted Credibility Scorer
 analyst_agent = Agent(
-    role='Forensic News Verifier',
-    goal='Scout agent ke data ko analyze karke final verdict dena aur "Sources Used" ki list provide karna.',
-    backstory="""Aap credibility check karte hain. Aapka verdict tabhi valid mana jayega 
-    jab aap niche 'Sources Used' heading ke andar un websites ke naam aur links denge jinhe scan kiya gaya.""",
-    llm=my_llm,
+    role='Credibility Scoring Officer',
+    goal='Analyze sources and calculate a Final Satyarth Credibility Score (0-100%).',
+    backstory="""Aap ek senior data analyst hain jo sources ko weightage dete hain:
+    - Official Govt Sources (.gov, .nic, PIB): 50% weightage
+    - Mainstream Trusted Media: 30% weightage
+    - Local Verified Portals: 15% weightage
+    - Social Media/Others: 5% weightage
+    
+    Aap final report mein ek "Credibility Score Card" aur un websites ke links 
+    dete hain jinhe scan kiya gaya hai (Sources Used).""",
+    llm=text_llm,
     verbose=True,
     allow_delegation=True
 )
