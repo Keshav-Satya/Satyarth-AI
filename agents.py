@@ -7,7 +7,7 @@ from langchain_community.tools import DuckDuckGoSearchRun
 # 1. SambaNova LLM Setup - No more 404/401 Errors
 # Sir, hum Llama 3.1 70B use kar rahe hain jo Gemini se fast aur stable hai
 my_llm = LLM(
-    model="openai/meta-llama/Llama-3.1-70B-Instruct",
+    model="openai/meta-llama/Llama-3.3-70B-Instruct",
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"],
     temperature=0.1
@@ -40,3 +40,4 @@ analyst_agent = Agent(
     verbose=True,
     allow_delegation=True
 )
+
