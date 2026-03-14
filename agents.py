@@ -1,47 +1,42 @@
 import os
 import streamlit as st
-from crewai import Agent, Task, Crew, Process
+from crewai import Agent, LLM
 from crewai.tools import tool
 from langchain_community.tools import DuckDuckGoSearchRun
-from langchain_google_genai import ChatGoogleGenerativeAI
 
-# 1. Sabse zaroori: Purani yaadein mitao
-# Sir, check kijiye ki yahan GOOGLE_API_KEY wala koi os.environ na ho!
-os.environ["OPENAI_API_KEY"] = "NA"
-
-# Yeh configuration sabse zyada stable hai aur 404 error ko khatam kar degi
-my_llm = ChatGoogleGenerativeAI(
-    model="gemini-pro", 
-    google_api_key=st.secrets["GOOGLE_API_KEY"], # <--- 'api_key' ko 'google_api_key' kar dein
-    temperature=0.3
+# 1. SambaNova LLM Setup - No more 404/401 Errors
+# Sir, hum Llama 3.1 70B use kar rahe hain jo Gemini se fast aur stable hai
+my_llm = LLM(
+    model="openai/meta-llama/Llama-3.1-70B-Instruct",
+    base_url="https://api.sambanova.ai/v1",
+    api_key=st.secrets["SAMBANOVA_API_KEY"],
+    temperature=0.1
 )
 
-# 3. SEARCH TOOL
+# 2. Search Tool
 @tool('search_tool')
 def search_tool(query: str):
-    """Search the internet for news and information."""
-    raw_results = DuckDuckGoSearchRun().run(query)
-    return raw_results[:2000]
+    """Search the internet for news, facts, and verification information."""
+    search = DuckDuckGoSearchRun()
+    return search.run(query)[:2000]
 
-# 4. Scout Agent
+# 3. Scout Agent - Sachai dhundne wala detective
 scout_agent = Agent(
     role='Digital Information Scout',
-    goal='Viral news ki sachai verify karna.',
-    backstory="Aap ek digital detective hain jo fact-check karte hain.",
+    goal='Viral news ki sachai verify karna aur internet se credible sources dhundna.',
+    backstory="Aap ek expert digital detective hain jo fact-check karne aur afwahon ka parda-faash karne mein mahir hain.",
     tools=[search_tool],
-    llm=my_llm, # <--- Sir, yeh line Gemini se connect karti hai
+    llm=my_llm,
     verbose=True,
     allow_delegation=False
 )
 
-# 5. Analyst Agent
+# 4. Analyst Agent - Report banaye wala journalist
 analyst_agent = Agent(
     role='News Verifier Analyst',
-    goal='Scout Agent ki report ko analyze karke final verdict dena.',
-    backstory="Aap ek senior journalist hain jo sources ki credibility check karte hain.",
-    llm=my_llm, # <--- Yeh line bhi Gemini use karegi
+    goal='Scout Agent ki report ko analyze karke final forensic verdict dena.',
+    backstory="Aap ek senior investigative journalist hain jo sources ki credibility check karke final report likhte hain.",
+    llm=my_llm,
     verbose=True,
     allow_delegation=True
 )
-
-
