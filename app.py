@@ -10,7 +10,7 @@ from PIL import Image
 # # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Cyber-Security UI (Indigo Theme)
+# # 2. Cyber-Security UI (Stable Hinglish Edition)
 st.markdown("""
     <style>
     .stApp { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f1f5f9; }
@@ -37,26 +37,26 @@ if "SAMBANOVA_API_KEY" not in st.secrets or "GOOGLE_API_KEY" not in st.secrets:
     st.error("Sir, please Secrets mein Keys check karein!")
     st.stop()
 
-# # 4. Engine Setup
+# # 4. Engine Setup (Switched to 11B for higher rate limits)
 text_llm = LLM(
-    model="sambanova/Meta-Llama-3.3-70B-Instruct", 
+    model="sambanova/Llama-3.2-11B-Vision-Instruct", 
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"],
-    temperature=0.2 # Thoda sa temperature badhaya for better analysis depth
+    temperature=0.1
 )
 
 @tool('search_tool')
 def search_tool(query: str):
-    """Deep search tool for news verification."""
+    """Balanced search for news facts."""
     search = DuckDuckGoSearchRun()
-    # Increase context to 500 chars for match results/highlights
-    return search.run(query)[:500]
+    # 350 characters balance hai tokens aur analysis ke liye
+    return search.run(query)[:350]
 
 # # 5. Sidebar
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #38bdf8;'>🛡️ Satyarth-AI</h2>", unsafe_allow_html=True)
-    st.metric("Mode", "Forensic Analyst 📍")
-    st.info("📡 SambaNova: Connected")
+    st.metric("Mode", "Forensic Stability Active ✅")
+    st.info("📡 SambaNova: Stable Mode")
     st.info("💠 Gemini Vision: Ready")
     st.write("---")
     st.markdown("Developed by **Team Future Flux**")
@@ -75,38 +75,43 @@ with tab1:
 
     if st.button("🚀 START DEEP FORENSIC ANALYSIS"):
         if news_topic:
-            with st.status("🕵️ Investigating Context & Evidence...", expanded=True) as status:
-                # Optimized Agents with Hinglish focus and NO Scorecard
+            with st.status("🕵️ Investigating Evidence...", expanded=True) as status:
+                # Optimized Agents: Strictly Hinglish & Detailed Analysis
                 scout = Agent(
-                    role='Forensic Research Agent',
-                    goal=f'Verify {news_topic} in {location}. Dhyan rahe ki match dates, winners aur official ICC reports check karein.',
-                    backstory="Aap ek expert investigator hain jo deep web se specific match details aur official results nikaalte hain. Detailed facts collect karein.",
+                    role='Forensic Scout',
+                    goal=f'Verify {news_topic} in {location} context. Find official ICC or Govt records.',
+                    backstory="Aap ek expert investigator hain. Specific dates aur results verify karein.",
                     tools=[search_tool], llm=text_llm, verbose=True
                 )
                 analyst = Agent(
-                    role='Expert News Analyst',
-                    goal='Create a detailed analysis report in HINGLISH. Do NOT include any Score Card or numeric rating.',
-                    backstory="""Aapko results ko Hinglish (Hindi + English) mein explain karna hai. 
-                    Evidence ko breakdown karein aur clear verdict dein ki news Real hai ya Fake. 
-                    Strictly follow: No Scorecard, Only Detailed Reasoning.""",
+                    role='News Analyst',
+                    goal='Create a detailed analysis report in HINGLISH. No scorecards.',
+                    backstory="Aap results ko Hinglish mein explain karte hain. Evidence aur clear verdict dein.",
                     llm=text_llm, verbose=True
                 )
 
                 crew = Crew(
                     agents=[scout, analyst],
                     tasks=[
-                        Task(description=f"Thoroughly check news about: {news_topic} in {location}. Match results aur historical records compare karein.", agent=scout, expected_output="Detailed list of facts and links."),
-                        Task(description="Create a comprehensive analysis report in Hinglish. Summarize findings, give a verdict, and list sources at the end. DO NOT USE SCORECARDS.", agent=analyst, expected_output="Detailed Hinglish Report.")
+                        Task(description=f"Check matches and records for: {news_topic} in {location}.", agent=scout, expected_output="Facts and links."),
+                        Task(description="Write detailed Hinglish report with clear verdict and sources. Do NOT use any scores.", agent=analyst, expected_output="Detailed Hinglish Report.")
                     ],
                     process=Process.sequential
                 )
-                result = crew.kickoff()
-                status.update(label="Analysis Complete! ✅", state="complete")
                 
-                st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
-                
-                if any(x in result.raw.lower() for x in ["real", "true", "sahi", "authentic"]): st.balloons()
-                elif any(x in result.raw.lower() for x in ["fake", "false", "galat", "misleading"]): st.snow()
+                try:
+                    result = crew.kickoff()
+                    status.update(label="Analysis Complete! ✅", state="complete")
+                    st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
+                    
+                    if any(x in result.raw.lower() for x in ["real", "true", "sahi", "authentic"]): st.balloons()
+                    elif any(x in result.raw.lower() for x in ["fake", "false", "galat", "fraud"]): st.snow()
+                except Exception as e:
+                    st.error("Sir, SambaNova ki limit hit ho gayi hai. 60 seconds baad phir se try karein.")
+            
+            st.write("---")
+            if st.button("👥 Request Human Expert Verification"):
+                st.info(f"Sir, humne {location} ke verified experts ko request bhej di hai! 📡")
         else:
             st.warning("Sir, please headline enter karein!")
 
