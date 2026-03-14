@@ -10,25 +10,25 @@ import google.generativeai as genai
 # # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Ultimate High-Contrast "Blue-Armor" CSS
+# # 2. Force-High-Contrast "Blue-Armor" CSS
 st.markdown("""
     <style>
-    /* Global Background - Deep Black */
+    /* Global Background - Deep Black/Navy */
     .stApp { background: #020617 !important; color: #ffffff !important; }
     
-    /* Input Boxes - Blue Dibbe Fix */
+    /* INPUT BOXES - Blue Dibbe Fix (Requested) */
     div[data-baseweb="input"] {
-        background-color: #0f172a !important; /* Deep Blue Background */
+        background-color: #0f172a !important; /* Force Dark Blue */
         border: 2px solid #38bdf8 !important; /* Neon Blue Border */
         border-radius: 10px !important;
     }
     input {
-        color: #ffffff !important; /* Pure White Text */
+        color: #ffffff !important; /* Pure White Text Inside */
         font-weight: 700 !important;
     }
     ::placeholder { color: #94a3b8 !important; opacity: 1; }
 
-    /* Green Labels - News & Region */
+    /* GREEN LABELS - News & Region (Maximum Visibility) */
     [data-testid="stWidgetLabel"] p {
         font-size: 1.4rem !important; 
         font-weight: 900 !important; 
@@ -39,11 +39,12 @@ st.markdown("""
         display: inline-block; 
         margin-bottom: 15px !important;
         border: 2px solid #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
 
-    /* BUTTONS - Solid Colors for Visibility */
+    /* BUTTONS - Hard Coded for Image-2 Style */
     .stButton>button {
-        color: #ffffff !important; /* Text ALWAYS White */
+        color: #ffffff !important; /* Bold White Text ALWAYS */
         font-weight: 900 !important;
         font-size: 1.2rem !important;
         text-transform: uppercase;
@@ -53,14 +54,16 @@ st.markdown("""
         transition: 0.3s;
     }
 
-    /* Start Analysis Button (Deep Navy Blue) */
+    /* Start Analysis Button (Image-2 Style: Deep Blue) */
     .main-btn .stButton>button {
-        background: #1e40af !important; /* Solid Navy Blue */
+        background: #1e40af !important; /* Solid Deep Blue - No more white-out */
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
     }
 
-    /* Request Human Verification (Solid Vibrant Red) */
+    /* Human Verification Button (Vibrant Colourful/Red) */
     .red-btn .stButton>button {
-        background: #dc2626 !important; /* Solid Red */
+        background: linear-gradient(45deg, #dc2626, #ea580c, #b91c1c) !important;
+        box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
     }
 
     .stButton>button:hover {
@@ -68,7 +71,7 @@ st.markdown("""
         filter: brightness(1.2);
     }
 
-    /* Sidebar Readability Overhaul */
+    /* Sidebar Readability Fixes */
     [data-testid="stSidebar"] {
         background-color: #020617 !important;
         border-right: 3px solid #38bdf8;
@@ -82,8 +85,16 @@ st.markdown("""
         color: #ffffff !important;
         text-shadow: 1px 1px 2px #000;
     }
+    
+    /* Expander Text Force-Visible */
+    .stExpander { border: 2px solid #38bdf8 !important; background: #0f172a !important; }
+    .stExpander p, .stExpander li { 
+        color: #ffffff !important; 
+        font-weight: 700 !important; 
+        font-size: 1.1rem !important;
+    }
 
-    /* Title & Scanner Animations */
+    /* Decorated Title & Scanner Animation */
     .main-title {
         background: linear-gradient(90deg, #38bdf8, #ffffff, #38bdf8);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -102,13 +113,9 @@ st.markdown("""
     }
     @keyframes scan { 0% { left: -250px; } 100% { left: 100%; } }
 
-    /* About Section Text */
-    .stExpander { border: 2px solid #38bdf8 !important; background: #0f172a !important; }
-    .stExpander p, .stExpander li { color: #ffffff !important; font-weight: 700; }
-    
-    /* Footer/Team Info */
-    .dev-info { color: #38bdf8 !important; font-weight: 900; font-size: 1.1rem; }
-    .email-box { color: #ffffff !important; font-weight: 800; background: #2563eb; padding: 5px 15px; border-radius: 5px; border: 1px solid white; }
+    /* Footer Info */
+    .dev-label { color: #38bdf8 !important; font-weight: 900; font-size: 1.2rem; margin-top: 25px; }
+    .email-box { color: #ffffff !important; font-weight: 800; background: #2563eb; padding: 6px 15px; border-radius: 6px; border: 1px solid white; display: inline-block; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -135,13 +142,13 @@ with st.sidebar:
     
     with st.expander("ℹ️ How Satyarth-AI Works?"):
         st.markdown("""
-        - **Scout Agent:** Gov portals aur news sites scan karta hai.
+        - **Scout Agent:** Gov portals aur regional sources scan karta hai.
         - **Analyst Agent:** Hinglish forensic report likhta hai.
         - **Vision AI:** Pixels analyze karke AI markers dhundta hai.
         """)
 
     st.write("---")
-    st.markdown('<p class="dev-info">Developed by Team Future Flux</p>', unsafe_allow_html=True)
+    st.markdown('<p class="dev-label">Developed by Team Future Flux</p>', unsafe_allow_html=True)
     st.markdown('<p class="email-box">📩 satyarthai2007@gmail.com</p>', unsafe_allow_html=True)
     st.markdown('<p style="color:#ffffff; font-weight:800; margin-top:10px;">📍 NIT Hamirpur</p>', unsafe_allow_html=True)
 
@@ -178,4 +185,28 @@ with tab1:
         st.markdown('<div class="red-btn">', unsafe_allow_html=True)
         if st.button("👥 Request Human Verification"):
             st.info("you will be informed when we receive reply")
-        st.markdown
+        st.markdown('</div>', unsafe_allow_html=True)
+
+with tab2:
+    st.markdown("### 🔬 Image Forensic Module")
+    cam_on = st.toggle("🎥 Activate Live Camera Feed", value=False)
+    up_c, cam_c = st.columns(2)
+    img_cam = None 
+    with up_c: img_up = st.file_uploader("Upload Image", type=['jpg','png','jpeg'])
+    with cam_c: 
+        if cam_on: img_cam = st.camera_input("Take Photo")
+        else: st.info("Camera is OFF.")
+
+    final_img = img_up if img_up is not None else img_cam
+    if final_img is not None:
+        st.image(final_img, caption="Forensic Scan Ready.", width=500)
+        st.markdown('<div class="main-btn">', unsafe_allow_html=True)
+        if st.button("🔍 RUN PIXEL ANALYSIS", key="img_btn"):
+            with st.spinner("Scanning for AI markers..."):
+                try:
+                    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    response = model.generate_content(["Analyze image for AI artifacts. Hinglish Verdict.", Image.open(final_img)])
+                    st.write(f"### 🔬 Verdict: \n {response.text}")
+                except Exception as e: st.error(f"Error: {e}")
+        st.markdown('</div>', unsafe_allow_html=True)
