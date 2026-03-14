@@ -110,51 +110,53 @@ with tab1:
         else:
             st.warning("Sir, please ek topic ya news headline enter kijiye!")
 
-# --- TAB 2: Image Investigation (Self-Healing Gemini) ---
+# --- TAB 2: Image Investigation (Live Camera + Upload) ---
 with tab2:
-    st.info("Sir, yahan hum Gemini 1.5 Flash use kar rahe hain jo sabse stable aur fast hai! 🚀")
-    img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
+    st.info("Sir, yahan aap Live Photo khinch sakte hain ya File upload kar sakte hain! 🚀")
     
-    if img_file:
-        st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
+    # Do options: Camera ya Upload
+    col1, col2 = st.columns(2)
+    with col1:
+        img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
+    with col2:
+        cam_file = st.camera_input("Ya phir ek Live Photo click karein 📸")
+
+    # Jo bhi input mile (Upload ya Camera), usey use karein
+    final_img = img_file or cam_file
+    
+    if final_img:
+        st.image(final_img, caption="Scan ke liye image taiyar hai.", width=400)
         
-        # Line 121 starts exactly here (aligned inside 'if img_file:')
         if st.button("AI Detection Shuru Karein", key="img_btn"):
             if "GOOGLE_API_KEY" not in st.secrets:
                 st.error("Sir, please Secrets mein GOOGLE_API_KEY daaliye!")
             else:
-                with st.spinner("🔍 Forensic Sentinel is searching for an active model..."):
+                with st.spinner("🔍 Forensic Sentinel is analyzing the pixels..."):
                     try:
                         import google.generativeai as genai
                         from PIL import Image
                         
                         genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
                         
-                        # 1. Available models ki list nikaalo
+                        # Active model dhoondne ki logic
                         all_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-                        
-                        # 2. Priority List check karein
                         priority_list = [
                             'models/gemini-1.5-flash',
                             'models/gemini-1.5-flash-latest',
-                            'models/gemini-1.5-pro',
-                            'models/gemini-1.5-flash-8b'
+                            'models/gemini-1.5-pro'
                         ]
                         
                         working_model_name = next((p for p in priority_list if p in all_models), None)
-                        
-                        if not working_model_name:
-                            vision_models = [m for m in all_models if 'flash' in m or 'pro' in m]
-                            working_model_name = vision_models[0] if vision_models else None
 
                         if working_model_name:
                             model = genai.GenerativeModel(working_model_name)
-                            img = Image.open(img_file)
+                            # PIL Image mein convert karein
+                            img = Image.open(final_img)
                             
                             prompt = "Analyze this image for AI generation markers. Verdict in Hinglish."
                             response = model.generate_content([prompt, img])
                             
-                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis</h3>{response.text}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis Report</h3>{response.text}</div>', unsafe_allow_html=True)
                             st.balloons()
                         else:
                             st.error(f"Sir, vision model nahi mila. Available models: {all_models}")
