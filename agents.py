@@ -1,43 +1,24 @@
-import os
-import streamlit as st
-from crewai import Agent, LLM
-from crewai.tools import tool
-from langchain_community.tools import DuckDuckGoSearchRun
+# --- agents.py ---
 
-# 1. SambaNova LLM Setup - No more 404/401 Errors
-# Sir, hum Llama 3.1 70B use kar rahe hain jo Gemini se fast aur stable hai
-my_llm = LLM(
-    model="openai/meta-llama/Llama-3.3-70B-Instruct",
-    base_url="https://api.sambanova.ai/v1",
-    api_key=st.secrets["SAMBANOVA_API_KEY"],
-    temperature=0.1
-)
-
-# 2. Search Tool
-@tool('search_tool')
-def search_tool(query: str):
-    """Search the internet for news, facts, and verification information."""
-    search = DuckDuckGoSearchRun()
-    return search.run(query)[:2000]
-
-# 3. Scout Agent - Sachai dhundne wala detective
+# Scout Agent: Ab ye local sources ko bhi dhoondhega
 scout_agent = Agent(
-    role='Digital Information Scout',
-    goal='Viral news ki sachai verify karna aur internet se credible sources dhundna.',
-    backstory="Aap ek expert digital detective hain jo fact-check karne aur afwahon ka parda-faash karne mein mahir hain.",
+    role='Hyper-Local News Investigator',
+    goal='Global aur Local news ki sachai verify karna aur un websites ke links collect karna jahan ye news publish hui hai.',
+    backstory="""Aap ek investigative journalist hain jo regional portals (like Amar Ujala, 
+    Divya Himachal, Tribune) aur local administrative notices ko scan karte hain. 
+    Aapko har fact ke saath uski website ka URL bhi note karna hai.""",
     tools=[search_tool],
     llm=my_llm,
-    verbose=True,
-    allow_delegation=False
+    verbose=True
 )
 
-# 4. Analyst Agent - Report banaye wala journalist
+# Analyst Agent: Ye final report mein 'Sources' ka section banayega
 analyst_agent = Agent(
-    role='News Verifier Analyst',
-    goal='Scout Agent ki report ko analyze karke final forensic verdict dena.',
-    backstory="Aap ek senior investigative journalist hain jo sources ki credibility check karke final report likhte hain.",
+    role='Forensic News Verifier',
+    goal='Scout agent ke data ko analyze karke final verdict dena aur "Sources Used" ki list provide karna.',
+    backstory="""Aap credibility check karte hain. Aapka verdict tabhi valid mana jayega 
+    jab aap niche 'Sources Used' heading ke andar un websites ke naam aur links denge jinhe scan kiya gaya.""",
     llm=my_llm,
     verbose=True,
     allow_delegation=True
 )
-
