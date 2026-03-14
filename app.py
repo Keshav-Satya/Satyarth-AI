@@ -34,9 +34,9 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# # 2. Models Initialization
+# # 4. Updated Engine Setup (Fixed NotFoundError)
 text_llm = LLM(
-    model="openai/meta-llama/Llama-3.3-70B-Instruct",
+    model="Meta-Llama-3.3-70B-Instruct",
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"],
     temperature=0.1
@@ -117,3 +117,4 @@ with tab2:
                 response = model.generate_content(["Analyze image for AI markers. Verdict in Hinglish.", Image.open(final_img)])
                 st.markdown(f'<div class="report-card"><h3>🔬 Verdict</h3>{response.text}</div>', unsafe_allow_html=True)
             except Exception as e: st.error(f"Error: {e}")
+
