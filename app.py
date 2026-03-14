@@ -23,4 +23,137 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3
+# 3. API Keys Verification
+if "SAMBANOVA_API_KEY" not in st.secrets or "GROQ_API_KEY" not in st.secrets:
+    st.error("Sir, please Secrets mein SAMBANOVA_API_KEY aur GROQ_API_KEY dono daaliye!")
+    st.stop()
+
+# 4. Initialize Models & Clients
+# Text model (SambaNova - Llama 3.3)
+text_llm = LLM(
+    model="openai/Meta-Llama-3.3-70B-Instruct",
+    base_url="https://api.sambanova.ai/v1",
+    api_key=st.secrets["SAMBANOVA_API_KEY"]
+)
+
+# Groq Client for Vision
+groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+def encode_image(image_file):
+    """Converts image to base64 for Groq Vision API."""
+    return base64.b64encode(image_file.getvalue()).decode('utf-8')
+
+# 5. Search Tool for Agents
+@tool('search_tool')
+def search_tool(query: str):
+    """Search internet for latest news and facts."""
+    return DuckDuckGoSearchRun().run(query)[:2000]
+
+# --- Sidebar Configuration ---
+with st.sidebar:
+    st.markdown("# 🕵️ Satyarth-AI")
+    st.success("✅ System: Multimodal Active")
+    st.write("---")
+    st.write("Developed by **Team Future Flux** | NIT Hamirpur")
+
+# --- Main Dashboard ---
+st.markdown('<h1 class="main-title">🕵️ Satyarth-AI</h1>', unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Advanced Disinformation Detection & Image Forensic Engine</p>", unsafe_allow_html=True)
+st.write("---")
+
+tab1, tab2 = st.tabs(["📝 Text Verification", "📷 Image Investigation"])
+
+# --- TAB 1: Text Investigation (CrewAI Power) ---
+with tab1:
+    news_topic = st.text_input("Sir, kis news ka 'Parda-Faash' karna hai?", placeholder="e.g. Is viral NASA photo real?")
+    
+    if st.button("Satyarth Analysis Shuru Karein", type="primary"):
+        if news_topic:
+            with st.status("🔍 Searching & Analyzing Data...", expanded=True) as status:
+                st.write("🌐 Initializing Forensic Agents...")
+                
+                # Agent 1: Fact Checker
+                scout = Agent(
+                    role='Digital Detective',
+                    goal=f'Verify all facts related to: {news_topic}',
+                    backstory="Aap ek expert fact-checker hain jo internet ke kone-kone se sachai nikaalte hain.",
+                    tools=[search_tool],
+                    llm=text_llm,
+                    verbose=True,
+                    allow_delegation=False
+                )
+                
+                # Agent 2: Reporter
+                analyst = Agent(
+                    role='Forensic Analyst',
+                    goal='Create a final verdict report in Hinglish.',
+                    backstory="Aap ek senior investigative journalist hain jo news ki authenticity check karte hain.",
+                    llm=text_llm,
+                    verbose=True
+                )
+                
+                # Orchestrate the Crew
+                crew = Crew(
+                    agents=[scout, analyst],
+                    tasks=[
+                        Task(description=f"Find current facts and evidence for: {news_topic}", agent=scout, expected_output="A list of verified facts."),
+                        Task(description="Synthesize findings into a final Hinglish report with a clear verdict.", agent=analyst, expected_output="Final Hinglish verdict report.")
+                    ],
+                    process=Process.sequential
+                )
+                
+                result = crew.kickoff()
+                status.update(label="Investigation Complete! ✅", state="complete")
+            
+            st.markdown(f'<div class="report-card"><h3>📜 Forensic Report</h3>{result.raw}</div>', unsafe_allow_html=True)
+            st.balloons()
+        else:
+            st.warning("Sir, please ek topic ya news headline enter kijiye!")
+
+# --- TAB 2: Image Investigation (Groq Vision Fail-Safe) ---
+with tab2:
+    st.info("Sir, yahan hum Llama 3.2 90B Vision model use kar rahe hain jo deepfakes pakadne mein mahir hai! 🚀")
+    img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
+    
+    if img_file:
+        st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
+        
+        if st.button("AI Detection Shuru Karein", key="img_btn"):
+            with st.spinner("🔍 Pixels analyze ho rahe hain (Groq Power)..."):
+                try:
+                    # Encode the image
+                    base64_img = encode_image(img_file)
+                    
+                    # Fail-Safe Model Logic (Nested Try-Except)
+                    try:
+                        # Attempt 1: 90B Model (Stable & Powerful)
+                        response = groq_client.chat.completions.create(
+                            messages=[{
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": "Analyze this image for AI markers (warped textures, light mismatch, AI artifacts). Provide a verdict in Hinglish."},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
+                                ],
+                            }],
+                            model="llama-3.2-90b-vision-preview",
+                        )
+                    except Exception:
+                        # Attempt 2: Fallback to 11B Model
+                        response = groq_client.chat.completions.create(
+                            messages=[{
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": "Analyze this image for AI markers. Provide a verdict in Hinglish."},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}"}},
+                                ],
+                            }],
+                            model="llama-3.2-11b-vision-preview",
+                        )
+                    
+                    # Output report
+                    report_text = response.choices[0].message.content
+                    st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{report_text}</div>', unsafe_allow_html=True)
+                    st.balloons()
+                    
+                except Exception as e:
+                    st.error(f"Sir, Groq system mein error aaya: {e}. Please check API keys or Quota.")
