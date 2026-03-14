@@ -12,10 +12,10 @@ if "SAMBANOVA_API_KEY" not in st.secrets:
     st.error("Sir, please Streamlit Secrets mein SAMBANOVA_API_KEY add kijiye!")
     st.stop()
 
-# 3. SambaNova LLM Setup - THE MASTER FIX
-# Sir, 'meta-llama/' hata kar humne direct model name likha hai
+# --- MODEL NAME UPDATE (No more APIError) ---
+# Sir, hum Llama 3.3 use karenge kyunki 3.1 ab purana ho gaya hai
 my_llm = LLM(
-    model="openai/Meta-Llama-3.1-70B-Instruct", 
+    model="openai/Meta-Llama-3.3-70B-Instruct", 
     base_url="https://api.sambanova.ai/v1",
     api_key=st.secrets["SAMBANOVA_API_KEY"],
     temperature=0.1
@@ -82,3 +82,4 @@ if submit_button and news_topic:
     st.markdown("### 📜 Final Forensic Report")
     st.markdown(f'<div class="report-card">{result.raw}</div>', unsafe_allow_html=True)
     st.balloons()
+
