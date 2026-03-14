@@ -3,3 +3,5 @@ litellm
 langchain-community
 duckduckgo-search
 streamlit
+Pillow
+google-generativeai
