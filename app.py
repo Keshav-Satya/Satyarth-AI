@@ -38,7 +38,7 @@ st.markdown("""
     }
     @keyframes scan { 0% { left: -250px; } 100% { left: 100%; } }
 
-    /* 🔴 SIMPLE RED TABS (Requested Change) */
+    /* 🔴 SIMPLE RED TABS */
     button[data-baseweb="tab"] {
         background-color: transparent !important;
         color: #94a3b8 !important;
@@ -68,36 +68,37 @@ st.markdown("""
         border: 2px solid #38bdf8 !important;
     }
     input, textarea {
-        color: #38bdf8 !important; /* Force Typed text to Blue */
+        color: #38bdf8 !important; 
         font-weight: 800 !important;
         -webkit-text-fill-color: #38bdf8 !important;
     }
 
-    /* BUTTONS STYLE - FORCE VISIBILITY */
+    /* BUTTONS STYLE */
     .stButton>button {
-        color: #ffffff !important;
         font-weight: 900 !important;
-        font-size: 1.1rem !important;
+        font-size: 1.2rem !important;
         text-transform: uppercase;
         border-radius: 12px !important;
         padding: 15px 30px !important;
-        border: 2px solid #ffffff !important;
+        border: 3px solid #ffffff !important;
         transition: 0.3s;
-        opacity: 1 !important;
-        visibility: visible !important;
     }
 
-    /* Deep Blue Analysis Button */
+    /* ⬇️ START Analysis Button (Deep Blue Background + RED TEXT Requested) ⬇️ */
     .main-btn .stButton>button {
         background: #1e40af !important;
+        color: #ef4444 !important; /* Force RED Text */
+        -webkit-text-fill-color: #ef4444 !important;
     }
 
-    /* 🔴 RED Human Verification Button */
+    /* 🔴 Human Verification Button (Red Background + White Text) */
     .red-btn .stButton>button {
         background: #dc2626 !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
     }
 
-    /* Sidebar Health Metrics */
+    /* Sidebar Styling */
     [data-testid="stSidebar"] { background-color: #020617 !important; border-right: 3px solid #38bdf8; }
     .metric-container {
         background: #1e293b !important; padding: 15px; border-radius: 12px;
@@ -105,7 +106,7 @@ st.markdown("""
     }
     .metric-container b, .metric-container small { color: #ffffff !important; }
 
-    /* About Section Visibility */
+    /* Expander/About Visibility */
     .stExpander { border: 2px solid #38bdf8 !important; background: #0f172a !important; }
     .stExpander p, .stExpander li { color: #ffffff !important; font-weight: 700; }
 
@@ -120,7 +121,7 @@ st.markdown("""
 
 # # 3. Engine Setup
 if "SAMBANOVA_API_KEY" not in st.secrets:
-    st.error("Sir, Secrets mein SAMBANOVA_API_KEY daaliye!")
+    st.error("Sir, Secrets mein SAMBANOVA_API_KEY check karein!")
     st.stop()
 
 text_llm = LLM(
@@ -131,7 +132,7 @@ text_llm = LLM(
 
 @tool('search_tool')
 def search_tool(query: str):
-    """Forensic web scan tool."""
+    """Forensic search for live news evidence."""
     search = DuckDuckGoSearchRun()
     return search.run(query)[:500]
 
