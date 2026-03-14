@@ -10,7 +10,7 @@ from PIL import Image
 # # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Professional Cyber UI
+# # 2. Cyber-Security UI
 st.markdown("""
     <style>
     .stApp { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #f1f5f9; }
@@ -47,17 +47,15 @@ text_llm = LLM(
 
 @tool('search_tool')
 def search_tool(query: str):
-    """Deep search for news verification."""
+    """Deep forensic search for news verification."""
     search = DuckDuckGoSearchRun()
-    # 400 chars for precise factual extraction
-    return search.run(query)[:400]
+    return search.run(query)[:500]
 
 # # 5. Sidebar
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #38bdf8;'>🛡️ Satyarth-AI</h2>", unsafe_allow_html=True)
-    st.metric("Mode", "Professional Forensic 📍")
-    st.info("📡 SambaNova: Connected")
-    st.info("💠 Gemini Vision: Ready")
+    st.metric("Status", "Forensic Active 📍")
+    st.info("📡 Connection: Stable")
     st.write("---")
     st.markdown("Developed by **Team Future Flux**")
 
@@ -75,32 +73,30 @@ with tab1:
 
     if st.button("🚀 START DEEP FORENSIC ANALYSIS"):
         if news_topic:
-            with st.status("🕵️ Extracting Live Evidence...", expanded=True) as status:
-                # Optimized Agents: Strictly Professional & Fact-Oriented
+            with st.status("🕵️ Investigating (Current Date: March 15, 2026)...", expanded=True) as status:
+                # Agents strictly forced to March 15, 2026 and Hinglish
                 scout = Agent(
                     role='Forensic Fact Researcher',
-                    goal=f'Verify {news_topic} using live data. Today is March 15, 2026. Check ICC T20 World Cup 2026 recent results.',
-                    backstory="""Aap ek unbiased fact researcher hain. Aapka kaam hai dates, locations aur 
-                    official statements ko cross-check karna. Aap kabhi bhi slang ya unprofessional 
-                    language use nahi karte.""",
+                    goal=f'Verify {news_topic} in {location} using data up to March 15, 2026. Check ICC T20 World Cup 2026 winners today.',
+                    backstory="""Today is March 15, 2026. Aap ek expert investigator hain. 
+                    Aapka kaam hai aaj ki date ke hisaab se live cricket news aur official ICC 
+                    statements ko verify karna. Search error hone par dusre sources try karein.""",
                     tools=[search_tool], llm=text_llm, verbose=True
                 )
                 analyst = Agent(
-                    role='Lead Forensic Verifier',
-                    goal='Create a professional analysis report in HINGLISH based on extracted facts. No scorecards.',
-                    backstory="""Aap ek senior forensic analyst hain. Aapka report format: 
-                    1. Verdict (Real/Fake) 
-                    2. Key Evidence (Search results se factual details) 
-                    3. Conclusion. 
-                    Aap hamesha respectful aur professional tone maintain karte hain.""",
+                    role='Forensic Analyst',
+                    goal='Create a professional verdict report strictly in HINGLISH. No scorecards.',
+                    backstory="""Aap ek senior analyst hain jo sirf Hinglish (Hindi + English) 
+                    mein report likhte hain. Aapko aaj ki date (15 March 2026) ke factual 
+                    evidence ke base par clear 'Real' ya 'Fake' verdict dena hai.""",
                     llm=text_llm, verbose=True
                 )
 
                 crew = Crew(
                     agents=[scout, analyst],
                     tasks=[
-                        Task(description=f"Find current status of: {news_topic}. Compare with March 15, 2026 date.", agent=scout, expected_output="Specific match results and dates."),
-                        Task(description="Synthesize into a professional Hinglish report. Strictly no slang or informal headings. Provide sources.", agent=analyst, expected_output="Professional Hinglish Report.")
+                        Task(description=f"Find if {news_topic} is true on March 15, 2026. Extract match winner details.", agent=scout, expected_output="Specific match facts and URLs."),
+                        Task(description="Write a detailed report in Hinglish. Start with a clear Verdict. List evidence and sources. No slang.", agent=analyst, expected_output="Professional Hinglish Report.")
                     ],
                     process=Process.sequential
                 )
@@ -110,14 +106,14 @@ with tab1:
                     status.update(label="Analysis Complete! ✅", state="complete")
                     st.markdown(f'<div class="report-card"><h3>📜 Forensic Analysis Report</h3>{result.raw}</div>', unsafe_allow_html=True)
                     
-                    if any(x in result.raw.lower() for x in ["real", "true", "sahi", "authentic", "finalist"]): st.balloons()
-                    elif any(x in result.raw.lower() for x in ["fake", "false", "galat", "misleading"]): st.snow()
+                    if any(x in result.raw.lower() for x in ["real", "true", "sahi", "authentic"]): st.balloons()
+                    elif any(x in result.raw.lower() for x in ["fake", "false", "galat", "fraud"]): st.snow()
                 except Exception as e:
-                    st.error("Rate limit hit. Please wait 60 seconds.")
+                    st.error(f"SambaNova issue: {e}. Please wait 60s.")
             
             st.write("---")
             if st.button("👥 Request Human Expert Verification"):
-                st.info(f"Sir, humne local ICC experts aur vendors ko alert bhej diya hai! 📡")
+                st.info(f"Sir, humne {location} ke verified experts ko alert bhej diya hai! 📡")
         else:
             st.warning("Sir, please headline enter karein!")
 
@@ -136,10 +132,10 @@ with tab2:
     if final_img is not None:
         st.image(final_img, caption="Forensic Scan Ready.", width=500)
         if st.button("🔍 RUN PIXEL ANALYSIS"):
-            with st.spinner("Analyzing AI markers..."):
+            with st.spinner("Analyzing..."):
                 try:
                     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
                     model = genai.GenerativeModel('gemini-1.5-flash')
-                    response = model.generate_content(["Analyze image markers. Verdict in Hinglish.", Image.open(final_img)])
+                    response = model.generate_content(["Analyze image for AI markers. Verdict in Hinglish.", Image.open(final_img)])
                     st.markdown(f'<div class="report-card"><h3>🔬 Verdict</h3>{response.text}</div>', unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error: {e}")
