@@ -112,44 +112,50 @@ with tab2:
     
     if img_file:
         st.image(img_file, caption="Investigation ke liye image taiyar hai.", width=400)
-        
-        if st.button("AI Detection Shuru Karein", key="img_btn"):
+
+    if st.button("AI Detection Shuru Karein", key="img_btn"):
             with st.spinner("🔍 Image ke pixels analyze ho rahe hain (Groq Power)..."):
                 try:
+                    # 1. Image ko encode karein
                     base64_image = encode_image(img_file)
                     
-      base64_image = encode_image(img_file)
-                
-                # --- Fail-Safe Model Logic ---
-                try:
-                    # Pehle 90B try karega
-                    response = groq_client.chat.completions.create(
-                        messages=[{
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
-                            ],
-                        }],
-                        model="llama-3.2-90b-vision-preview", 
-                    )
-                except Exception:
-                    # Agar 90B fail hua, toh 11B backup use karega
-                    response = groq_client.chat.completions.create(
-                        messages=[{
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
-                            ],
-                        }],
-                        model="llama-3.2-11b-vision", 
-                    )
+                    # 2. Fail-Safe Model Logic
+                    try:
+                        # Pehle 90B model try karega (Sabse powerful)
+                        response = groq_client.chat.completions.create(
+                            messages=[{
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                                ],
+                            }],
+                            model="llama-3.2-90b-vision-preview", 
+                        )
+                    except Exception:
+                        # Agar 90B fail hua, toh 11B backup use karega
+                        response = groq_client.chat.completions.create(
+                            messages=[{
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": "Analyze this image for AI generation markers. Provide a Forensic Verdict in Hinglish."},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                                ],
+                            }],
+                            model="llama-3.2-11b-vision", 
+                        )
                     
+                    # 3. Report display karein (Verdict nikalne ke liye)
                     report = response.choices[0].message.content
                     st.markdown(f'<div class="report-card"><h3>🔍 Image Analysis Report</h3>{report}</div>', unsafe_allow_html=True)
                     st.balloons()
+
                 except Exception as e:
-                    st.error(f"Sir, Groq error: {e}. Please check model name or API limits.")
+                    # Final error catch agar dono models fail ho jayein
+                    st.error(f"Sir, Groq error: {e}. Please check API limits.")
+        
+        
+           
+
 
 
