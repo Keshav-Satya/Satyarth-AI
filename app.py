@@ -110,67 +110,57 @@ with tab1:
         else:
             st.warning("Sir, please ek topic ya news headline enter kijiye!")
 
-# --- TAB 2: Image Investigation (SambaNova Vision Robust) ---
+# --- TAB 2: Image Investigation (The "Never-Fail" Gemini Flash) ---
 with tab2:
-    st.info("Sir, yahan hum SambaNova Llama 3.2 Vision use kar rahe hain! 🚀")
-    img_file = st.file_uploader("Photo Upload Karein", type=['jpg', 'png', 'jpeg'])
-
+    st.info("Sir, yahan hum Gemini 1.5 Flash use kar rahe hain jo sabse stable aur fast hai! 🚀")
+    img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
+    
     if img_file:
-        st.image(img_file, caption="Investigation ke liye image taiyar hai.", width=400)
+        st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
         
         if st.button("AI Detection Shuru Karein", key="img_btn"):
-            with st.spinner("🔍 Samba-Vision Sentinel is scanning pixels..."):
-                try:
-                    import requests
-                    # 1. Image ko base64 mein convert karein
-                    base64_image = encode_image(img_file)
-                    
-                    # 2. SambaNova Vision API Call
-                    api_key = st.secrets["SAMBANOVA_API_KEY"]
-                    url = "https://api.sambanova.ai/v1/chat/completions"
-                    
-                    headers = {
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json"
-                    }
-
-                    # Dimaag lagao: Model name aur format check karein
-                    payload = {
-                        "model": "Llama-3.2-11B-Vision-Instruct",
-                        "messages": [
-                            {
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": "Analyze this image for AI generation markers (warped textures, lighting mismatch). Provide a Forensic Verdict in Hinglish."},
-                                    {
-                                        "type": "image_url",
-                                        "image_url": {
-                                            "url": f"data:image/jpeg;base64,{base64_image}"
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        "temperature": 0.1
-                    }
-
-                    response = requests.post(url, headers=headers, json=payload)
-                    
-                    # Agar server JSON nahi bhej raha, toh raw text dekhein
-                    if response.status_code != 200:
-                        st.error(f"⚠️ SambaNova Server Error ({response.status_code}): {response.text}")
-                    else:
+            if "GOOGLE_API_KEY" not in st.secrets:
+                st.error("Sir, please Secrets mein GOOGLE_API_KEY daaliye!")
+            else:
+                with st.spinner("🔍 Gemini Forensic Engine is scanning pixels..."):
+                    try:
+                        import google.generativeai as genai
+                        from PIL import Image
+                        
+                        # Configuration
+                        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+                        
+                        # Stable Model: gemini-1.5-flash (No latest suffix)
+                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        
+                        # Convert uploaded file to PIL Image
+                        img = Image.open(img_file)
+                        
+                        # Professional Forensic Prompt
+                        prompt = """
+                        Analyze this image for AI generation markers (warped textures, unnatural limbs, 
+                        lighting inconsistencies, or AI artifacts). Give a final verdict in Hinglish 
+                        stating if the image is 'Real' or 'AI Generated' with reasons.
+                        """
+                        
+                        # Generation
+                        response = model.generate_content([prompt, img])
+                        
+                        # Output
+                        if response.text:
+                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{response.text}</div>', unsafe_allow_html=True)
+                            st.balloons()
+                        else:
+                            st.error("Sir, model ne koi output nahi diya. Dubara try karein.")
+                            
+                    except Exception as e:
+                        # Fail-safe: Agar Flash fail ho, toh Flash-8B try karein (Backup)
                         try:
-                            res_json = response.json()
-                            if "choices" in res_json:
-                                report = res_json['choices'][0]['message']['content']
-                                st.markdown(f'<div class="report-card"><h3>🔍 Forensic Image Analysis</h3>{report}</div>', unsafe_allow_html=True)
-                                st.balloons()
-                            else:
-                                st.error(f"SambaNova API Issue: {res_json}")
-                        except Exception:
-                            st.error(f"Raw Response (Not JSON): {response.text}")
-
-                except Exception as e:
-                    st.error(f"Sir, Vision system mein issue aaya: {e}")
+                            st.write("🔄 Trying Backup Model (Flash-8B)...")
+                            model_backup = genai.GenerativeModel('gemini-1.5-flash-8b')
+                            response = model_backup.generate_content([prompt, img])
+                            st.markdown(f'<div class="report-card"><h3>🔍 Forensic Analysis (Backup)</h3>{response.text}</div>', unsafe_allow_html=True)
+                            st.balloons()
+                        except Exception as e2:
+                            st.error(f"Sir, Gemini ke saare models down hain: {e2}")
 
