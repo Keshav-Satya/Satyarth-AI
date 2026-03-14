@@ -10,44 +10,54 @@ import google.generativeai as genai
 # # 1. Page Configuration
 st.set_page_config(page_title="Satyarth-AI | Forensic Engine", page_icon="🛡️", layout="wide")
 
-# # 2. Advanced High-Contrast Cyber CSS
+# # 2. Advanced High-Contrast Cyber-Tech CSS
 st.markdown("""
     <style>
     /* Global Background */
-    .stApp { background: linear-gradient(135deg, #020617 0%, #0f172a 100%); color: #f8fafc; }
+    .stApp { background: linear-gradient(135deg, #020617 0%, #0f172a 100%); color: #ffffff; }
     
-    /* Neon Sidebar - High Readability Fix */
+    /* Neon Sidebar - Extreme Visibility Fix */
     [data-testid="stSidebar"] {
         background-color: #020617 !important;
         border-right: 3px solid #0ea5e9;
     }
     .sidebar-header { color: #38bdf8 !important; font-weight: 900; font-size: 1.6rem; }
     
+    /* Metric Boxes with High-Contrast */
     .metric-container {
         background: rgba(14, 165, 233, 0.25);
         padding: 18px; border-radius: 12px;
         border: 2px solid #38bdf8; margin-bottom: 18px;
+        box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
     }
-    /* Bright Metric Text */
-    .metric-container b { color: #ffffff !important; font-size: 1.2rem; display: block; margin-bottom: 5px; }
-    .metric-container small { color: #f0f9ff !important; font-weight: 900; font-size: 0.95rem; letter-spacing: 1px; text-transform: uppercase; }
+    .metric-container b { color: #ffffff !important; font-size: 1.25rem; display: block; margin-bottom: 5px; }
+    .metric-container small { color: #ffffff !important; font-weight: 900; font-size: 0.95rem; letter-spacing: 1.2px; text-transform: uppercase; }
     
-    /* Developer & Email Info */
-    .dev-label { color: #38bdf8 !important; font-weight: 900; font-size: 1.1rem; margin-top: 20px; }
-    .email-text { color: #ffffff !important; font-weight: 800; font-family: 'Courier New', monospace; font-size: 0.95rem; background: rgba(56, 189, 248, 0.1); padding: 5px; border-radius: 4px; }
+    /* Sidebar Expander/About Text Readability */
+    .stExpander { border: 1px solid #38bdf8 !important; background: rgba(255, 255, 255, 0.05) !important; }
+    .stExpander p, .stExpander li { color: #f8fafc !important; font-weight: 500; font-size: 1rem; }
 
-    /* Input Labels */
+    /* Developer & Email Footer Visibility */
+    .dev-label { color: #38bdf8 !important; font-weight: 900; font-size: 1.1rem; margin-top: 25px; }
+    .email-text { color: #ffffff !important; font-weight: 800; font-size: 1rem; background: #0ea5e9; padding: 6px 10px; border-radius: 6px; display: inline-block; margin-top: 5px; }
+    .nit-text { color: #94a3b8 !important; font-weight: 700; font-size: 0.9rem; margin-top: 8px; }
+
+    /* Main UI Input Labels */
     [data-testid="stWidgetLabel"] p {
         font-size: 1.35rem !important; font-weight: 900 !important; color: #ffffff !important;
-        background: rgba(14, 165, 233, 0.3); padding: 6px 15px; border-radius: 10px;
-        display: inline-block; margin-bottom: 15px !important; border-left: 5px solid #38bdf8;
+        background: rgba(14, 165, 233, 0.4); padding: 8px 18px; border-radius: 10px;
+        display: inline-block; margin-bottom: 15px !important; border-left: 6px solid #38bdf8;
     }
 
-    /* Forensic Report Card */
-    .report-card {
-        background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(30px);
-        padding: 35px; border-radius: 20px; border: 2px solid #38bdf8;
-        color: #ffffff !important; line-height: 1.8; font-size: 1.15rem;
+    /* Human Verification Button - Blue Neon Look */
+    .human-btn-container .stButton>button {
+        background: linear-gradient(45deg, #1d4ed8, #2563eb) !important;
+        color: white !important;
+        border: 2px solid #38bdf8 !important;
+        font-weight: 900 !important;
+        font-size: 1.1rem !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .main-title {
@@ -55,6 +65,12 @@ st.markdown("""
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         font-size: 4.8rem; font-weight: 900; text-align: center;
         filter: drop-shadow(0 10px 15px rgba(56, 189, 248, 0.3));
+    }
+    
+    .report-card {
+        background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(35px);
+        padding: 35px; border-radius: 20px; border: 2px solid #38bdf8;
+        color: #ffffff !important; line-height: 1.8; font-size: 1.15rem;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -72,7 +88,7 @@ def search_tool(query: str):
     search = DuckDuckGoSearchRun()
     return search.run(query)[:500]
 
-# # 4. Pro Tech Sidebar Dashboard
+# # 4. Sidebar: Control Center, About & Footer
 with st.sidebar:
     st.markdown('<p class="sidebar-header">🛡️ Satyarth Control</p>', unsafe_allow_html=True)
     st.markdown("---")
@@ -82,10 +98,9 @@ with st.sidebar:
     st.markdown('<div class="metric-container"><b>Forensic Agents</b><br><small>MODE: HYPER-LOCAL 📍</small></div>', unsafe_allow_html=True)
     st.markdown('<div class="metric-container"><b>Memory Buffer</b><br><small>USAGE: OPTIMAL 100% ✅</small></div>', unsafe_allow_html=True)
     
-    # About Section Integration
-    with st.expander("ℹ️ About Satyarth-AI"):
-        st.markdown(f"""
-        **How it works?**
+    # About Section
+    with st.expander("ℹ️ How Satyarth-AI Works?"):
+        st.markdown("""
         1. **Scout Agent:** Ye internet ke official gov portals aur regional news sources ko scan karta hai.
         2. **Analyst Agent:** Ye sources ko points deta hai (Credibility Score) aur final Hinglish report likhta hai.
         3. **Image Forensic:** Gemini 1.5 Flash pixels ko analyze karke AI markers dhundta hai.
@@ -93,13 +108,11 @@ with st.sidebar:
 
     st.write("---")
     st.markdown('<p class="dev-label">Developed by Team Future Flux</p>', unsafe_allow_html=True)
-    # Email Request
     st.markdown('<p class="email-text">📩 satyarthai2007@gmail.com</p>', unsafe_allow_html=True)
-    st.caption("NIT Hamirpur | Electrothon 8.0")
+    st.markdown('<p class="nit-text">📍 NIT Hamirpur | Electrothon 8.0</p>', unsafe_allow_html=True)
 
-# # 5. Main UI
+# # 5. Main UI Header
 st.markdown('<h1 class="main-title">SATYARTH-AI</h1>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 1.3rem;'>Automated High-Fidelity Disinformation Detection Engine</p>", unsafe_allow_html=True)
 st.write("---")
 
 tab1, tab2 = st.tabs(["🔍 Text Verification", "🔬 Image Investigation"])
@@ -109,42 +122,27 @@ with tab1:
     with c_in:
         news_topic = st.text_input("News Headline Daalein 👇", placeholder="e.g. Is NIT Hamirpur closing tomorrow?")
     with c_loc:
-        # Region Requested as Optional
         region = st.text_input("Region (Optional) 📍", placeholder="District and State")
 
     if st.button("🚀 START DEEP FORENSIC ANALYSIS", key="text_btn"):
         if news_topic:
-            with st.status(f"🕵️ Investigating sources for {region if region else 'Global'}...", expanded=True) as status:
-                scout = Agent(
-                    role='Forensic Scout',
-                    goal=f'Verify {news_topic} in {region}. Strictly use local official sources.',
-                    backstory="Digital Detective.", tools=[search_tool], llm=text_llm, verbose=True
-                )
-                analyst = Agent(
-                    role='Lead Verifier',
-                    goal='Write professional Hinglish verdict report.',
-                    backstory="Expert Journalist.", llm=text_llm, verbose=True
-                )
-                crew = Crew(
-                    agents=[scout, analyst],
-                    tasks=[
-                        Task(description=f"Verify {news_topic} in {region}.", agent=scout, expected_output="Facts."),
-                        Task(description="Write forensic report in Hinglish.", agent=analyst, expected_output="Report.")
-                    ],
-                    process=Process.sequential
-                )
+            with st.status("🕵️ Investigating sources...", expanded=True) as status:
+                scout = Agent(role='Scout', goal=f'Verify {news_topic} in {region}.', backstory="Detective.", tools=[search_tool], llm=text_llm)
+                analyst = Agent(role='Verifier', goal='Write Hinglish report.', backstory="Journalist.", llm=text_llm)
+                crew = Crew(agents=[scout, analyst], tasks=[Task(description=f"Check {news_topic}", agent=scout, expected_output="Facts"), Task(description="Report", agent=analyst, expected_output="Report")], process=Process.sequential)
                 result = crew.kickoff()
                 st.session_state.final_report = result.raw
                 status.update(label="Analysis Complete! ✅", state="complete")
             st.balloons()
-        else:
-            st.warning("Sir, please news enter kijiye!")
 
     if "final_report" in st.session_state:
         st.markdown(f'<div class="report-card"><h3>📜 Forensic Verification Report</h3>{st.session_state.final_report}</div>', unsafe_allow_html=True)
         st.write("---")
+        # Neon Blue Button for Human Verification
+        st.markdown('<div class="human-btn-container">', unsafe_allow_html=True)
         if st.button("👥 Request Human Verification"):
             st.info("you will be informed when we receive reply")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 with tab2:
     st.markdown("### 🔬 Image Forensic Module")
