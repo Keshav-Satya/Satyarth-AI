@@ -110,23 +110,22 @@ with tab1:
         else:
             st.warning("Sir, please ek topic ya news headline enter kijiye!")
 
-# --- TAB 2: Image Investigation (Groq Vision Fail-Safe) ---
+# --- TAB 2: Image Investigation (SambaNova Vision) ---
 with tab2:
-    st.info("Sir, yahan hum Llama 3.2 90B Vision model use kar rahe hain jo deepfakes pakadne mein mahir hai! 🚀")
-    img_file = st.file_uploader("Investigation ke liye photo upload karein", type=['jpg', 'png', 'jpeg'])
-    
+    st.info("Sir, yahan hum SambaNova Llama 3.2 Vision use kar rahe hain! 🚀")
+    img_file = st.file_uploader("Photo Upload Karein", type=['jpg', 'png', 'jpeg'])
+
     if img_file:
-        st.image(img_file, caption="Scan ke liye image taiyar hai.", width=400)
+        st.image(img_file, caption="Investigation ke liye image taiyar hai.", width=400)
         
-       if st.button("AI Detection Shuru Karein", key="img_btn"):
+        if st.button("AI Detection Shuru Karein", key="img_btn"):
             with st.spinner("🔍 Samba-Vision Sentinel is scanning pixels..."):
                 try:
+                    import requests
                     # 1. Image ko base64 mein convert karein
                     base64_image = encode_image(img_file)
                     
-                    # 2. SambaNova Vision API Call (Using existing Key)
-                    import requests
-
+                    # 2. SambaNova Vision API Call
                     api_key = st.secrets["SAMBANOVA_API_KEY"]
                     url = "https://api.sambanova.ai/v1/chat/completions"
                     
@@ -141,7 +140,7 @@ with tab2:
                             {
                                 "role": "user",
                                 "content": [
-                                    {"type": "text", "text": "Analyze this image for AI generation markers like warped textures, lighting mismatch, or unnatural artifacts. Give a Forensic Verdict in Hinglish."},
+                                    {"type": "text", "text": "Analyze this image for AI generation markers (warped textures, lighting mismatch). Provide a Forensic Verdict in Hinglish."},
                                     {
                                         "type": "image_url",
                                         "image_url": {
@@ -166,5 +165,3 @@ with tab2:
 
                 except Exception as e:
                     st.error(f"Sir, Vision system mein issue aaya: {e}")
-
-
